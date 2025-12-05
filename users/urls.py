@@ -1,7 +1,11 @@
 from django.urls import path
-from .views import LoginAPIView, SignupAPIView
+from . import views
 
 urlpatterns = [
-    path('login/', LoginAPIView.as_view(), name='login'), 
-    path('signup/', SignupAPIView.as_view(), name='signup'), 
+    path('login/', views.login, name='login'),
+    path('signup/', views.signup, name='signup'),
+    path('search-user/', views.search_user, name='search_user'),
+    path('recent-chats/', views.recent_chats, name='recent_chats'),
+    path('send-message/', views.send_message, name='send_message'),
+    path('get-messages/', views.get_messages, name='get_messages'),
 ]
