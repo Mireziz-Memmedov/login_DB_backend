@@ -44,13 +44,15 @@ def search_user(request):
 @api_view(['GET'])
 def recent_chats(request):
     current_user_id = request.GET.get('user_id')
+    if not current_user_id:
+        return Response({'users': []})
     try:
         user = NewsUsers.objects.get(id=current_user_id)
         sent_to = Message.objects.filter(sender=user).values_list('receiver__username', flat=True)
         received_from = Message.objects.filter(receiver=user).values_list('sender__username', flat=True)
         users = set(list(sent_to) + list(received_from))
         return Response({'users': list(users)})
-    except NewsUsers.DoesNotExist:
+    except (NewsUsers.DoesNotExist, ValueError):
         return Response({'users': []})
 
 # Send message
@@ -59,6 +61,8 @@ def send_message(request):
     sender_id = request.data.get('sender_id')
     receiver_name = request.data.get('to')
     text = request.data.get('text')
+    if not sender_id or not receiver_name or not text:
+        return Response({'success': False, 'error': 'Bütün sahələr doldurulmalıdır!'})
     try:
         sender = NewsUsers.objects.get(id=sender_id)
         receiver = NewsUsers.objects.get(username=receiver_name)
@@ -67,19 +71,31 @@ def send_message(request):
         return Response({'success': True})
     except NewsUsers.DoesNotExist:
         return Response({'success': False, 'error': 'İstifadəçi tapılmadı'})
+    except ValueError:
+        return Response({'success': False, 'error': 'ID səhv formatdadır'})
 
-# Get messages with specific user
+# Get messages
 @api_view(['GET'])
 def get_messages(request):
     current_user_id = request.GET.get('user_id')
     target_user_name = request.GET.get('user')
+
+    if not current_user_id or not target_user_name:
+        return Response({'messages': [], 'error': 'user_id və user tələb olunur'})
+
     try:
         user = NewsUsers.objects.get(id=current_user_id)
+    except (NewsUsers.DoesNotExist, ValueError):
+        return Response({'messages': [], 'error': 'İstifadəçi tapılmadı'})
+
+    try:
         target_user = NewsUsers.objects.get(username=target_user_name)
-        msgs = Message.objects.filter(
-            Q(sender=user, receiver=target_user) | Q(sender=target_user, receiver=user)
-        ).order_by('timestamp')
-        serializer = MessageSerializer(msgs, many=True)
-        return Response({'messages': serializer.data})
     except NewsUsers.DoesNotExist:
-        return Response({'messages': []})
+        return Response({'messages': [], 'error': 'Hədəf istifadəçi tapılmadı'})
+
+    msgs = Message.objects.filter(
+        Q(sender=user, receiver=target_user) | Q(sender=target_user, receiver=user)
+    ).order_by('timestamp')
+
+    serializer = MessageSerializer(msgs, many=True)
+    return Response({'messages': serializer.data})
