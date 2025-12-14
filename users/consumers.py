@@ -6,7 +6,6 @@ from .models import NewsUsers, Message
 class ChatConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
-        # URL-dən sender id alınır
         self.sender_id = int(self.scope['url_route']['kwargs']['user_id'])
         self.sender = await database_sync_to_async(NewsUsers.objects.get)(id=self.sender_id)
         await self.accept()
@@ -22,11 +21,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.handle_load_messages(data)
 
     async def handle_chat_message(self, data):
-        message_text = data['message']
-        receiver_name = data['receiver_name']
+        message_text = data.get('message')
+        receiver_name = data.get('receiver_name')
+        if not message_text or not receiver_name:
+            return
 
-        # Receiver user
-        receiver = await database_sync_to_async(NewsUsers.objects.get)(username=receiver_name)
+        try:
+            receiver = await database_sync_to_async(NewsUsers.objects.get)(username=receiver_name)
+        except NewsUsers.DoesNotExist:
+            return
 
         # Mesajı DB-də saxla
         await database_sync_to_async(Message.objects.create)(
@@ -39,7 +42,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         room_name = f"{min(self.sender.id, receiver.id)}_{max(self.sender.id, receiver.id)}"
         room_group_name = f"chat_{room_name}"
 
-        # Qrupa əlavə et (yeni user join olduqda)
+        # Qrupa əlavə et (əgər artıq yoxdursa)
         await self.channel_layer.group_add(room_group_name, self.channel_name)
 
         # Mesajı qrupa göndər
@@ -53,10 +56,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
         )
 
     async def handle_load_messages(self, data):
-        target_user = data['target_user']
-        receiver = await database_sync_to_async(NewsUsers.objects.get)(username=target_user)
+        target_user = data.get('target_user')
+        if not target_user:
+            return
 
-        # Mesajları DB-dən al
+        try:
+            receiver = await database_sync_to_async(NewsUsers.objects.get)(username=target_user)
+        except NewsUsers.DoesNotExist:
+            return
+
+        # DB-dən mesajları al
         messages = await database_sync_to_async(
             lambda: list(
                 Message.objects.filter(

@@ -1,5 +1,5 @@
 from django.urls import re_path
-from . import consumers
+from . import consumers  # consumers.py eyni app-də olmalıdır
 
 websocket_urlpatterns = [
     # User-in id-si URL parametri kimi ötürülür
