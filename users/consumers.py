@@ -8,15 +8,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.sender_id = int(self.scope['url_route']['kwargs']['user_id'])
         self.sender = await database_sync_to_async(NewsUsers.objects.get)(id=self.sender_id)
-
-        # Room adı: iki user üçün unikal, frontend-in `target_user` göndərəcəyi ilə match
-        self.rooms = set()  # user qoşulduğu room-ları saxlamaq üçün
-
+        self.rooms = set()
         await self.accept()
-        print(f"User {self.sender.username} WebSocket-ə qoşuldu")
+        print(f"User {self.sender.username} connected to WebSocket")
 
     async def disconnect(self, close_code):
-        # Disconnect zamanı bütün qoşulduğu room-lardan çıx
         for room_group_name in self.rooms:
             await self.channel_layer.group_discard(room_group_name, self.channel_name)
 
@@ -40,23 +36,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
         except NewsUsers.DoesNotExist:
             return
 
-        # Mesajı DB-də saxla
         await database_sync_to_async(Message.objects.create)(
             sender=self.sender,
             receiver=receiver,
             text=message_text
         )
 
-        # Room adı (iki user üçün unikal)
         room_name = f"{min(self.sender.id, receiver.id)}_{max(self.sender.id, receiver.id)}"
         room_group_name = f"chat_{room_name}"
 
-        # Qrupa əlavə et yalnız əgər artıq qoşulmayıbsa
         if room_group_name not in self.rooms:
             await self.channel_layer.group_add(room_group_name, self.channel_name)
             self.rooms.add(room_group_name)
 
-        # Mesajı qrupa göndər
         await self.channel_layer.group_send(
             room_group_name,
             {
@@ -76,16 +68,13 @@ class ChatConsumer(AsyncWebsocketConsumer):
         except NewsUsers.DoesNotExist:
             return
 
-        # Room adı
         room_name = f"{min(self.sender.id, target_user.id)}_{max(self.sender.id, target_user.id)}"
         room_group_name = f"chat_{room_name}"
 
-        # Qrupa əlavə et yalnız əgər artıq qoşulmayıbsa
         if room_group_name not in self.rooms:
             await self.channel_layer.group_add(room_group_name, self.channel_name)
             self.rooms.add(room_group_name)
 
-        # DB-dən mesajları al
         messages = await database_sync_to_async(
             lambda: list(
                 Message.objects.filter(
@@ -106,7 +95,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         }))
 
     async def chat_message_event(self, event):
-        # Qrupdan gələn mesajları frontend-ə göndər
         await self.send(text_data=json.dumps({
             'type': 'chat_message',
             'message': event['message'],
