@@ -146,7 +146,11 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
+            "hosts": [(
+                os.getenv("REDIS_HOST"),  # Məsələn: "global-dev.upstash.io"
+                int(os.getenv("REDIS_PORT")),  # Port nömrəsi
+                os.getenv("REDIS_PASSWORD")  # Redis auth token
+            )],
         },
     },
 }
