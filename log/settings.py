@@ -50,6 +50,8 @@ CORS_ALLOWED_ORIGINS = [
     "https://mireziz-memmedov.github.io",
 ]
 
+CORS_ALLOW_CREDENTIALS = True
+
 ROOT_URLCONF = "log.urls"
 
 TEMPLATES = [
