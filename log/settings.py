@@ -23,7 +23,6 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
-    "corsheaders",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -49,8 +48,6 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "https://mireziz-memmedov.github.io",
 ]
-
-CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = "log.urls"
 
@@ -149,11 +146,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [(
-                os.getenv("REDIS_HOST"),  # Məsələn: "global-dev.upstash.io"
-                int(os.getenv("REDIS_PORT")),  # Port nömrəsi
-                os.getenv("REDIS_PASSWORD")  # Redis auth token
-            )],
+            "hosts": [("127.0.0.1", 6379)],
         },
     },
 }
