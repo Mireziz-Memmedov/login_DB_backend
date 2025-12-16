@@ -28,7 +28,7 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "django.contrib.staticfiles",
+    # "django.contrib.staticfiles",
     "rest_framework",
     "users",
 ]
@@ -47,6 +47,7 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     "https://mireziz-memmedov.github.io",
+    "https://ominous-system-v6w46xjgx46wcpr5v-5500.app.github.dev",
 ]
 
 ROOT_URLCONF = "log.urls"
@@ -132,21 +133,8 @@ USE_TZ = True
 
 STATICFILES_DIRS = []
 STATICFILES_STORAGE = None
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-ASGI_APPLICATION = "log.asgi.application"
-
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
-        },
-    },
-}
