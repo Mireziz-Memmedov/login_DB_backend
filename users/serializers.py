@@ -6,7 +6,7 @@ class NewsUsersSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = NewsUsers
-        fields = ['id', 'username', 'password']
+        fields = ['id', 'username', 'password', 'email']
 
 class MessageSerializer(serializers.ModelSerializer):
     sender = serializers.CharField(source='sender.username', read_only=True)

@@ -9,12 +9,15 @@ from django.db.models import Q
 def signup(request):
     username = request.data.get('username')
     password = request.data.get('password')
-    if not username or not password:
+    email = request.data.get('email')
+    if not username or not password or not email:
         return Response({'success': False, 'error': 'Bütün sahələr doldurulmalıdır!'})
     if NewsUsers.objects.filter(username=username).exists():
         return Response({'success': False, 'error': 'İstifadəçi adı artıq mövcuddur!'})
+    if NewsUsers.objects.filter(email=email).exists():
+        return Response({'success': False, 'error': 'Bu email ilə artıq hesab yaradılıb!'})
     
-    user = NewsUsers(username=username)
+    user = NewsUsers(username=username, email=email)
     user.set_password(password)
     user.save()
     return Response({'success': True})
