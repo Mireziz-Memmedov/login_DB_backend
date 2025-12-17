@@ -4,7 +4,7 @@ from django.contrib.auth.hashers import make_password, check_password
 class NewsUsers(models.Model):
     username = models.CharField(max_length=100, unique=True)
     password = models.CharField(max_length=128, null=False)
-    email = models.CharField(max_length=254, unique=True)
+    email = models.CharField(max_length=254, unique=True, null=True, blank=False)
 
     class Meta:
         db_table = 'login'
