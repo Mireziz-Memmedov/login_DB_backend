@@ -10,10 +10,13 @@ def signup(request):
     username = request.data.get('username')
     password = request.data.get('password')
     email = request.data.get('email')
+    
     if not username or not password or not email:
         return Response({'success': False, 'error': 'Bütün sahələr doldurulmalıdır!'})
+    
     if NewsUsers.objects.filter(username=username).exists():
         return Response({'success': False, 'error': 'İstifadəçi adı artıq mövcuddur!'})
+    
     if NewsUsers.objects.filter(email=email).exists():
         return Response({'success': False, 'error': 'Bu email ilə artıq hesab yaradılıb!'})
     
@@ -49,31 +52,15 @@ def recent_chats(request):
     current_user_id = request.GET.get('user_id')
     if not current_user_id:
         return Response({'users': []})
-
+    
     try:
-        current_user = NewsUsers.objects.get(id=current_user_id)
+        user = NewsUsers.objects.get(id=current_user_id)
+        sent_to = Message.objects.filter(sender=user).values_list('receiver__username', flat=True)
+        received_from = Message.objects.filter(receiver=user).values_list('sender__username', flat=True)
+        users = set(list(sent_to) + list(received_from))
+        return Response({'users': list(users)})
     except (NewsUsers.DoesNotExist, ValueError):
         return Response({'users': []})
-
-    sent_to = Message.objects.filter(sender=current_user).values_list('receiver__username', flat=True)
-    received_from = Message.objects.filter(receiver=current_user).values_list('sender__username', flat=True)
-    users = set(list(sent_to) + list(received_from))
-
-    users_list = []
-    for username in users:
-        try:
-            user_obj = NewsUsers.objects.get(username=username)
-            user_info = {
-                "username": user_obj.username,
-                "is_online": user_obj.is_online,
-                "last_seen": user_obj.last_seen,
-            }
-            users_list.append(user_info)
-        except NewsUsers.DoesNotExist:
-            pass
-
-    return Response({'users': users_list})
-
 
 # Send message
 @api_view(['POST'])
@@ -81,8 +68,10 @@ def send_message(request):
     sender_id = request.data.get('sender_id')
     receiver_name = request.data.get('to')
     text = request.data.get('text')
+    
     if not sender_id or not receiver_name or not text:
         return Response({'success': False, 'error': 'Bütün sahələr doldurulmalıdır!'})
+    
     try:
         sender = NewsUsers.objects.get(id=sender_id)
         receiver = NewsUsers.objects.get(username=receiver_name)
@@ -99,26 +88,23 @@ def send_message(request):
 def get_messages(request):
     current_user_id = request.GET.get('user_id')
     target_user_name = request.GET.get('user')
-
+    
     if not current_user_id or not target_user_name:
         return Response({'messages': [], 'error': 'user_id və user tələb olunur'})
-
+    
     try:
         user = NewsUsers.objects.get(id=current_user_id)
     except (NewsUsers.DoesNotExist, ValueError):
         return Response({'messages': [], 'error': 'İstifadəçi tapılmadı'})
-
+    
     try:
         target_user = NewsUsers.objects.get(username=target_user_name)
     except NewsUsers.DoesNotExist:
         return Response({'messages': [], 'error': 'Hədəf istifadəçi tapılmadı'})
-
-    unread_messages = Message.objects.filter(sender=target_user, receiver=user, is_read=False)
-    unread_messages.update(is_read=True)
-
+    
     msgs = Message.objects.filter(
         Q(sender=user, receiver=target_user) | Q(sender=target_user, receiver=user)
     ).order_by('timestamp')
-
+    
     serializer = MessageSerializer(msgs, many=True)
     return Response({'messages': serializer.data})
