@@ -5,6 +5,8 @@ class NewsUsers(models.Model):
     username = models.CharField(max_length=100, unique=True)
     password = models.CharField(max_length=128, null=False)
     email = models.CharField(max_length=254, unique=True, null=True, blank=False)
+    is_online = models.BooleanField(default=False)
+    last_seen = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         db_table = 'login'
@@ -23,6 +25,7 @@ class Message(models.Model):
     receiver = models.ForeignKey(NewsUsers, related_name='received_messages', on_delete=models.CASCADE)
     text = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
 
     class Meta:
         ordering = ['timestamp']
