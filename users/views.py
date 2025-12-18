@@ -49,30 +49,14 @@ def recent_chats(request):
     current_user_id = request.GET.get('user_id')
     if not current_user_id:
         return Response({'users': []})
-
     try:
-        current_user = NewsUsers.objects.get(id=current_user_id)
+        user = NewsUsers.objects.get(id=current_user_id)
+        sent_to = Message.objects.filter(sender=user).values_list('receiver__username', flat=True)
+        received_from = Message.objects.filter(receiver=user).values_list('sender__username', flat=True)
+        users = set(list(sent_to) + list(received_from))
+        return Response({'users': list(users)})
     except (NewsUsers.DoesNotExist, ValueError):
         return Response({'users': []})
-
-    sent_to = Message.objects.filter(sender=current_user).values_list('receiver__username', flat=True)
-    received_from = Message.objects.filter(receiver=current_user).values_list('sender__username', flat=True)
-    users = set(list(sent_to) + list(received_from))
-
-    users_list = []
-    for username in users:
-        try:
-            user_obj = NewsUsers.objects.get(username=username)
-            user_info = {
-                "username": user_obj.username,
-                "is_online": user_obj.is_online,
-                "last_seen": user_obj.last_seen,
-            }
-            users_list.append(user_info)
-        except NewsUsers.DoesNotExist:
-            pass
-
-    return Response({'users': users_list})
 
 # Send message
 @api_view(['POST'])
