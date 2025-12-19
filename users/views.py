@@ -101,7 +101,10 @@ def get_messages(request):
         target_user = NewsUsers.objects.get(username=target_user_name)
     except NewsUsers.DoesNotExist:
         return Response({'messages': [], 'error': 'Hədəf istifadəçi tapılmadı'})
-    
+        
+    unread_messages = Message.objects.filter(sender=target_user, receiver=user, is_read=False)
+    unread_messages.update(is_read=True)
+
     msgs = Message.objects.filter(
         Q(sender=user, receiver=target_user) | Q(sender=target_user, receiver=user)
     ).order_by('timestamp')
