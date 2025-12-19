@@ -13,7 +13,7 @@ class NewsUsers(models.Model):
         db_table = 'login'
 
     def __str__(self):
-        return self.email
+        return self.username
 
     def set_password(self, raw_password):
         self.password = make_password(raw_password)
