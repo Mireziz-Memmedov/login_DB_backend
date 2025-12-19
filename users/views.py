@@ -4,6 +4,7 @@ from .models import NewsUsers, Message
 from .serializers import NewsUsersSerializer, MessageSerializer
 from django.db.models import Q, Max
 from django.utils import timezone
+from datetime import timedelta
 
 # Signup
 @api_view(['POST'])
@@ -50,6 +51,7 @@ def search_user(request):
     users = NewsUsers.objects.filter(username__icontains=query).values_list('username', flat=True)
     return Response({'users': list(users)})
 
+# Recent chats
 @api_view(['GET'])
 def recent_chats(request):
     current_user_id = request.GET.get('user_id')
@@ -137,6 +139,13 @@ def user_status(request):
 
     try:
         user = NewsUsers.objects.get(username=username)
+        
+        if user.is_online and user.last_seen:
+            now = timezone.now()
+            if now - user.last_seen > timedelta(minutes=5):
+                user.is_online = False
+                user.save(update_fields=["is_online"])
+        
         return Response({
             'username': user.username,
             'is_online': user.is_online,
