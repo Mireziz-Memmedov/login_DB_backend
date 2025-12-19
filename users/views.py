@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from .models import NewsUsers, Message
 from .serializers import NewsUsersSerializer, MessageSerializer
 from django.db.models import Q
+from django.utils import timezone
 
 # Signup
 @api_view(['POST'])
@@ -33,6 +34,9 @@ def login(request):
     try:
         user = NewsUsers.objects.get(username=username)
         if user.check_password(password):
+            user.is_online = True
+            user.last_seen = timezone.now()
+            user.save(update_fields=["is_online", "last_seen"])
             return Response({'success': True, 'user': NewsUsersSerializer(user).data})
         else:
             return Response({'success': False, 'error': 'Şifrə yalnışdır!'})
@@ -101,7 +105,7 @@ def get_messages(request):
         target_user = NewsUsers.objects.get(username=target_user_name)
     except NewsUsers.DoesNotExist:
         return Response({'messages': [], 'error': 'Hədəf istifadəçi tapılmadı'})
-        
+
     unread_messages = Message.objects.filter(sender=target_user, receiver=user, is_read=False)
     unread_messages.update(is_read=True)
 
@@ -111,3 +115,32 @@ def get_messages(request):
     
     serializer = MessageSerializer(msgs, many=True)
     return Response({'messages': serializer.data})
+
+# User status
+@api_view(['GET'])
+def user_status(request):
+    username = request.GET.get('username')
+    if not username:
+        return Response({'error': 'username tələb olunur'}, status=400)
+
+    try:
+        user = NewsUsers.objects.get(username=username)
+        return Response({
+            'username': user.username,
+            'is_online': user.is_online,
+            'last_seen': user.last_seen
+        })
+    except NewsUsers.DoesNotExist:
+        return Response({'error': 'İstifadəçi tapılmadı'}, status=404)
+
+@api_view(['POST'])
+def logout(request):
+    user_id = request.data.get('user_id')
+    try:
+        user = NewsUsers.objects.get(id=user_id)
+        user.is_online = False
+        user.last_seen = timezone.now()
+        user.save(update_fields=["is_online", "last_seen"])
+        return Response({'success': True})
+    except NewsUsers.DoesNotExist:
+        return Response({'success': False})
