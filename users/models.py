@@ -1,12 +1,13 @@
 from django.db import models
 from django.contrib.auth.hashers import make_password, check_password
+from django.utils import timezone
 
 class NewsUsers(models.Model):
     username = models.CharField(max_length=100, unique=True)
     password = models.CharField(max_length=128, null=False)
     email = models.CharField(max_length=254, unique=True, null=True, blank=False)
     is_online = models.BooleanField(default=False)
-    last_seen = models.DateTimeField(null=True, blank=True)
+    last_seen = models.DateTimeField(null=True, blank=True, default=timezone.now)
 
     class Meta:
         db_table = 'login'
