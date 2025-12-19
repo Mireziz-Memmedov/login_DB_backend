@@ -50,7 +50,6 @@ def search_user(request):
     users = NewsUsers.objects.filter(username__icontains=query).values_list('username', flat=True)
     return Response({'users': list(users)})
 
-# Recent chats (sıralı və son mesaj vaxtına görə)
 @api_view(['GET'])
 def recent_chats(request):
     current_user_id = request.GET.get('user_id')
