@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import NewsUsers, Message
 from .serializers import NewsUsersSerializer, MessageSerializer
-from django.db.models import Q
+from django.db.models import Q, Max
 from django.utils import timezone
 
 # Signup
@@ -43,14 +43,14 @@ def login(request):
     except NewsUsers.DoesNotExist:
         return Response({'success': False, 'error': 'İstifadəçi tapılmadı!'})
 
-# User search
+# Search user
 @api_view(['POST'])
 def search_user(request):
     query = request.data.get('username', '')
     users = NewsUsers.objects.filter(username__icontains=query).values_list('username', flat=True)
     return Response({'users': list(users)})
 
-# Recent chats
+# Recent chats (sıralı və son mesaj vaxtına görə)
 @api_view(['GET'])
 def recent_chats(request):
     current_user_id = request.GET.get('user_id')
@@ -59,10 +59,23 @@ def recent_chats(request):
     
     try:
         user = NewsUsers.objects.get(id=current_user_id)
-        sent_to = Message.objects.filter(sender=user).values_list('receiver__username', flat=True)
-        received_from = Message.objects.filter(receiver=user).values_list('sender__username', flat=True)
-        users = set(list(sent_to) + list(received_from))
-        return Response({'users': list(users)})
+        
+        sent_to = Message.objects.filter(sender=user).values('receiver__username').annotate(last_time=Max('timestamp'))
+        received_from = Message.objects.filter(receiver=user).values('sender__username').annotate(last_time=Max('timestamp'))
+        
+        chats = {}
+        for item in sent_to:
+            chats[item['receiver__username']] = item['last_time']
+        for item in received_from:
+            if item['sender__username'] in chats:
+                chats[item['sender__username']] = max(chats[item['sender__username']], item['last_time'])
+            else:
+                chats[item['sender__username']] = item['last_time']
+
+        sorted_users = sorted(chats.items(), key=lambda x: x[1], reverse=True)
+        users_ordered = [username for username, _ in sorted_users]
+        
+        return Response({'users': users_ordered})
     except (NewsUsers.DoesNotExist, ValueError):
         return Response({'users': []})
 
@@ -133,6 +146,7 @@ def user_status(request):
     except NewsUsers.DoesNotExist:
         return Response({'error': 'İstifadəçi tapılmadı'}, status=404)
 
+# Logout
 @api_view(['POST'])
 def logout(request):
     user_id = request.data.get('user_id')
