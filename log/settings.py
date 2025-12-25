@@ -47,7 +47,7 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     "https://mireziz-memmedov.github.io",
-    "https://ominous-system-v6w46xjgx46wcpr5v-5500.app.github.dev",
+    "https://jubilant-guacamole-v6w46xjgx574h464-5500.app.github.dev/",
 ]
 
 ROOT_URLCONF = "log.urls"
