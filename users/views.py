@@ -166,3 +166,19 @@ def logout(request):
         return Response({'success': True})
     except NewsUsers.DoesNotExist:
         return Response({'success': False})
+
+#Forgot check
+@api_view(['POST'])
+def forgot_check(request):
+
+    username_or_email = request.data.get('username_or_email')
+    user = NewsUsers.objects.filter(username=username_or_email) | NewsUsers.objects.filter(email=username_or_email)
+
+    if user.exists():
+        return Response({success: True})
+    else:
+        return Response({success: False, 'error': 'İstifadəçi tapılmadı'})
+
+
+
+
