@@ -175,9 +175,9 @@ def forgot_check(request):
     user = NewsUsers.objects.filter(username=username_or_email) | NewsUsers.objects.filter(email=username_or_email)
 
     if user.exists():
-        return Response({success: True})
+        return Response({'success': True})
     else:
-        return Response({success: False, 'error': 'İstifadəçi tapılmadı'})
+        return Response({'success': False, 'error': 'İstifadəçi tapılmadı'})
 
 
 
