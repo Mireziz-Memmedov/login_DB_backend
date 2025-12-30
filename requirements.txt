@@ -3,6 +3,7 @@ channels==4.3.2
 channels_redis==4.3.0
 click==8.3.1
 Django==6.0
+django-cors-headers==4.9.0
 djangorestframework==3.16.1
 gunicorn==23.0.0
 h11==0.16.0
