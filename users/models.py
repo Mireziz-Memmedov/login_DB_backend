@@ -8,6 +8,7 @@ class NewsUsers(models.Model):
     email = models.CharField(max_length=254, unique=True, null=True, blank=False)
     is_online = models.BooleanField(default=False)
     last_seen = models.DateTimeField(null=True, blank=True, default=timezone.now)
+    verify_code = models.CharField(max_length=4, null=False, blank=True)
 
     class Meta:
         db_table = 'login'
