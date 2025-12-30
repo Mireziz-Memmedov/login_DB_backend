@@ -5,6 +5,8 @@ from .serializers import NewsUsersSerializer, MessageSerializer
 from django.db.models import Q, Max
 from django.utils import timezone
 from datetime import timedelta
+import random
+import string
 
 # Signup
 @api_view(['POST'])
@@ -175,10 +177,21 @@ def forgot_check(request):
     user = NewsUsers.objects.filter(username=username_or_email) | NewsUsers.objects.filter(email=username_or_email)
 
     if user.exists():
+        verify_code = generate_verify_code(4)
+        user_instance = user.first()
+        user_instance.verify_code = verify_code
+        user_instance.save()
         return Response({'success': True})
     else:
         return Response({'success': False, 'error': 'İstifadəçi tapılmadı'})
 
+
+def generate_verify_code(length):
+
+        characters = string.digits
+        password = ''.join(random.choice(characters) for i in range(length))
+
+        return password
 
 
 
