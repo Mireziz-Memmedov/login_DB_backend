@@ -8,6 +8,7 @@ from datetime import timedelta
 import random
 import string
 from django.core.mail import send_mail
+from django.conf import settings
 
 # Signup
 @api_view(['POST'])
@@ -182,6 +183,15 @@ def forgot_check(request):
         user_instance = user.first()
         user_instance.verify_code = verify_code
         user_instance.save()
+
+        send_mail(
+            subject='Şifrə bərpası üçün təsdiq kodu',
+            message=f'Sizin şifrə bərpa kodunuz: {verify_code}',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user_instance.email],
+            fail_silently=False,
+        )
+
         return Response({'success': True})
     else:
         return Response({'success': False, 'error': 'İstifadəçi tapılmadı'})
