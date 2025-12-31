@@ -7,6 +7,7 @@ from django.utils import timezone
 from datetime import timedelta
 import random
 import string
+from django.core.mail import send_mail
 
 # Signup
 @api_view(['POST'])
