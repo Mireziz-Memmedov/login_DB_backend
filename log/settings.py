@@ -145,5 +145,6 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True   
 EMAIL_USE_SSL = False  
 EMAIL_HOST_USER = 'astroping2025@gmail.com'
-EMAIL_HOST_PASSWORD = 'Astroping2025_____'
+EMAIL_HOST_PASSWORD = 'drda nbuj dxyd pidw'
+# EMAIL_HOST_PASSWORD = 'Astroping2025_____'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
