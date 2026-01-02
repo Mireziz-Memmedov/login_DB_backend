@@ -182,6 +182,7 @@ def forgot_check(request):
         verify_code = generate_verify_code(4)
         user_instance = user.first()
         user_instance.verify_code = verify_code
+        user_instance.verify_code_created_at = timezone.now()
         user_instance.save()
 
         send_mail(
@@ -203,6 +204,24 @@ def generate_verify_code(length):
         password = ''.join(random.choice(characters) for i in range(length))
 
         return password
+
+#Verify Code
+@api_view(['POST'])
+def verify_code(request):
+    verify_code = request.data.get('verify_code')
+    user = NewsUsers.objects.filter(verify_code=verify_code)
+
+    if user.exists():
+        user_instance = user.first()
+        if timezone.now() - user_instance.verify_code_created_at <= timedelta(minutes=5):
+            user_instance.verify_code = ''
+            user_instance.verify_code_created_at = None
+            user_instance.save()
+            return Response({'success': True})
+        else:
+            return Response({'success': False, 'error': 'Kodun vaxtı bitib'})
+    else:
+        return Response({'success': False, 'error': 'Kod yanlışdır'})
 
 
 

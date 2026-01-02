@@ -11,5 +11,5 @@ urlpatterns = [
     path('user_status/', views.user_status, name='user_status'),
     path('logout/', views.logout, name='logout'),
     path('forgot-check/', views.forgot_check, name='forgot_check'),
-    # path('verify-code/', views.verify_code, name='verify_code'),
+    path('verify-code/', views.verify_code, name='verify_code'),
 ]
