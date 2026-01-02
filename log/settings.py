@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+from decouple import config
 
 load_dotenv()
 
@@ -76,11 +77,11 @@ WSGI_APPLICATION = "log.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv('PGDATABASE'),
-        "USER": os.getenv('PGUSER'),
-        "HOST": os.getenv('PGHOST'),
-        "PASSWORD": os.getenv('PGPASSWORD'),
-        "PORT": os.getenv('PGPORT'),
+        "NAME": config('PGDATABASE'),
+        "USER": config('PGUSER'),
+        "HOST": config('PGHOST'),
+        "PASSWORD": config('PGPASSWORD'),
+        "PORT": config('PGPORT'),
         "OPTIONS": {
             'sslmode': 'require',
         }
@@ -144,6 +145,6 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587            
 EMAIL_USE_TLS = True   
 EMAIL_USE_SSL = False
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
