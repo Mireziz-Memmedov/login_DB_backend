@@ -174,13 +174,18 @@ def logout(request):
 #Forgot check
 @api_view(['POST'])
 def forgot_check(request):
-
     username_or_email = request.data.get('username_or_email')
-    user = NewsUsers.objects.filter(username=username_or_email) | NewsUsers.objects.filter(email=username_or_email)
+    if not username_or_email:
+        return Response({'success': False, 'error': 'Username / email boşdur'})
+
+    user = NewsUsers.objects.filter(Q(username=username_or_email) | Q(email=username_or_email))
 
     if user.exists():
-        verify_code = generate_verify_code(4)
         user_instance = user.first()
+        if not user_instance.email:
+            return Response({'success': False, 'error': 'İstifadəçinin emaili yoxdur'})
+
+        verify_code = generate_verify_code(4)
         user_instance.verify_code = verify_code
         user_instance.verify_code_created_at = timezone.now()
         user_instance.save()
@@ -196,6 +201,7 @@ def forgot_check(request):
         return Response({'success': True})
     else:
         return Response({'success': False, 'error': 'İstifadəçi tapılmadı'})
+
 
 
 def generate_verify_code(length):
