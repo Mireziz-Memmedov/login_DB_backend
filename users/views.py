@@ -174,9 +174,8 @@ def logout(request):
 #Forgot check
 @api_view(['POST'])
 def forgot_check(request):
-
     username_or_email = request.data.get('username_or_email')
-    user = NewsUsers.objects.filter(username=username_or_email) | NewsUsers.objects.filter(email=username_or_email)
+    user = NewsUsers.objects.filter(Q(username=username_or_email) | Q(email=username_or_email))
 
     if user.exists():
         verify_code = generate_verify_code(4)
@@ -198,12 +197,8 @@ def forgot_check(request):
         return Response({'success': False, 'error': 'İstifadəçi tapılmadı'})
 
 
-def generate_verify_code(length):
-
-        characters = string.digits
-        password = ''.join(random.choice(characters) for i in range(length))
-
-        return password
+def generate_verify_code(length=4):
+    return ''.join(random.choice(string.digits) for _ in range(length))
 
 #Verify Code
 @api_view(['POST'])
