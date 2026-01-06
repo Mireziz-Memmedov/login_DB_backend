@@ -214,11 +214,10 @@ def verify_code(request):
     if user.exists():
         user_instance = user.first()
         if timezone.now() - user_instance.verify_code_created_at <= timedelta(minutes=5):
-            request.session['user_id'] = user_instance.id
             user_instance.verify_code = ''
             user_instance.verify_code_created_at = None
             user_instance.save()
-            return Response({'success': True})
+            return Response({'success': True, 'user_id': user_instance.id})
         else:
             return Response({'success': False, 'error': 'Kodun vaxtı bitib'})
     else:
@@ -228,13 +227,13 @@ def verify_code(request):
 @api_view(['POST'])
 def reset_password(request):
     password = request.data.get('password')
-    user_id = request.session.get('user_id')
+    user_id = request.data.get('user_id')
 
     if not password:
         return Response({'success': False, 'error': 'Yeni şifrə daxil edin!'})
 
     if not user_id:
-        return Response({'success': False, 'error': 'Session tapılmadı'})
+        return Response({'success': False, 'error': 'User ID tapılmadı'})
 
     try:
         user = NewsUsers.objects.get(id=user_id)
