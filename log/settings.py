@@ -48,7 +48,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://jubilant-guacamole-v6w46xjgx574h464-5500.app.github.dev",
 ]
 
-CORS_ALLOW_CREDENTIALS = True
+# CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = "log.urls"
 

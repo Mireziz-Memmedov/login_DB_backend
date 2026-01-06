@@ -226,17 +226,17 @@ def verify_code(request):
 #Reset password
 @api_view(['POST'])
 def reset_password(request):
+    username = request.data.get('username')
     password = request.data.get('password')
-    user_id = request.data.get('user_id')
 
     if not password:
         return Response({'success': False, 'error': 'Yeni şifrə daxil edin!'})
 
-    if not user_id:
-        return Response({'success': False, 'error': 'User ID tapılmadı'})
+    if not username:
+        return Response({'success': False, 'error': 'Username tapılmadı'})
 
     try:
-        user = NewsUsers.objects.get(id=user_id)
+        user = NewsUsers.objects.get(username=username)
     except NewsUsers.DoesNotExist:
         return Response({'success': False, 'error': 'İstifadəçi tapılmadı'})
 
@@ -244,6 +244,7 @@ def reset_password(request):
     user.save()
 
     return Response({'success': True})
+
 
 
 
