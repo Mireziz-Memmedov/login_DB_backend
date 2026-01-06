@@ -217,7 +217,7 @@ def verify_code(request):
             user_instance.verify_code = ''
             user_instance.verify_code_created_at = None
             user_instance.save()
-            return Response({'success': True, 'user_id': user_instance.id})
+            return Response({'success': True, 'username': user.username})
         else:
             return Response({'success': False, 'error': 'Kodun vaxtı bitib'})
     else:
