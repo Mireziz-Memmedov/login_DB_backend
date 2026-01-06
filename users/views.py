@@ -217,7 +217,7 @@ def verify_code(request):
             user_instance.verify_code = ''
             user_instance.verify_code_created_at = None
             user_instance.save()
-            return Response({'success': True, 'username': user_instance.username})
+            return Response({'success': True})
         else:
             return Response({'success': False, 'error': 'Kodun vaxtı bitib'})
     else:
@@ -226,21 +226,25 @@ def verify_code(request):
 #Reset password
 @api_view(['POST'])
 def reset_password(request):
-    username = request.data.get('username')
     password = request.data.get('password')
+    verify_code = request.data.get('verify_code')  # frontend göndərir
 
     if not password:
         return Response({'success': False, 'error': 'Yeni şifrə daxil edin!'})
-
-    if not username:
-        return Response({'success': False, 'error': 'Username tapılmadı'})
+    if not verify_code:
+        return Response({'success': False, 'error': 'Kod göndərilməyib!'})
 
     try:
-        user = NewsUsers.objects.get(username=username)
+        user = NewsUsers.objects.get(verify_code=verify_code)
     except NewsUsers.DoesNotExist:
-        return Response({'success': False, 'error': 'İstifadəçi tapılmadı'})
+        return Response({'success': False, 'error': 'Kod yanlışdır və ya vaxtı bitib'})
+
+    if user.verify_code_created_at and timezone.now() - user.verify_code_created_at > timedelta(minutes=5):
+        return Response({'success': False, 'error': 'Kodun vaxtı bitib'})
 
     user.set_password(password)
+    user.verify_code = ''
+    user.verify_code_created_at = None
     user.save()
 
     return Response({'success': True})
