@@ -227,7 +227,7 @@ def verify_code(request):
 @api_view(['POST'])
 def reset_password(request):
     password = request.data.get('password')
-    verify_code = request.data.get('verify_code')  # frontend göndərir
+    verify_code = request.data.get('verify_code')  
 
     if not password:
         return Response({'success': False, 'error': 'Yeni şifrə daxil edin!'})
