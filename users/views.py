@@ -214,8 +214,6 @@ def verify_code(request):
     if user.exists():
         user_instance = user.first()
         if timezone.now() - user_instance.verify_code_created_at <= timedelta(minutes=5):
-            user_instance.verify_code = ''
-            user_instance.verify_code_created_at = None
             user_instance.save()
             return Response({'success': True})
         else:
@@ -227,7 +225,7 @@ def verify_code(request):
 @api_view(['POST'])
 def reset_password(request):
     password = request.data.get('password')
-    verify_code = request.data.get('verify_code')  
+    verify_code = request.data.get('verify_code')
 
     if not password:
         return Response({'success': False, 'error': 'Yeni şifrə daxil edin!'})
