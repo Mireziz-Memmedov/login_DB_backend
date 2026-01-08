@@ -110,6 +110,9 @@ def send_message(request):
 def get_messages(request):
     current_user_id = request.GET.get('user_id')
     target_user_name = request.GET.get('user')
+    limit = int(request.GET.get('limit', 10))
+    offset = int(request.GET.get('offset', 0))
+    limit = min(limit, 50)
     
     if not current_user_id or not target_user_name:
         return Response({'messages': [], 'error': 'user_id və user tələb olunur'})
@@ -129,10 +132,16 @@ def get_messages(request):
 
     msgs = Message.objects.filter(
         Q(sender=user, receiver=target_user) | Q(sender=target_user, receiver=user)
-    ).order_by('timestamp')
+    ).order_by('-timestamp')[offset:offset + limit]
     
     serializer = MessageSerializer(msgs, many=True)
-    return Response({'messages': serializer.data})
+    return Response({
+        'messages': serializer.data[::-1], 
+        'has_more': Message.objects.filter(
+            Q(sender=user, receiver=target_user) |
+            Q(sender=target_user, receiver=user)
+        ).count() > offset + limit
+    })
 
 # User status
 @api_view(['GET'])
