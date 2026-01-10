@@ -5,7 +5,7 @@ from django.utils import timezone
 class NewsUsers(models.Model):
     username = models.CharField(max_length=100, unique=True)
     password = models.CharField(max_length=128, null=False)
-    email = models.CharField(max_length=254, unique=True, null=True, blank=False)
+    email = models.EmailField(max_length=254, unique=True, null=True, blank=False)
     is_online = models.BooleanField(default=False)
     last_seen = models.DateTimeField(null=True, blank=True, default=timezone.now)
     verify_code = models.CharField(max_length=4, null=False, blank=True)

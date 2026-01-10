@@ -9,6 +9,8 @@ import random
 import string
 from django.core.mail import send_mail
 from django.conf import settings
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 
 # Signup
 @api_view(['POST'])
@@ -16,9 +18,17 @@ def signup(request):
     username = request.data.get('username')
     password = request.data.get('password')
     email = request.data.get('email')
-    
+
     if not username or not password or not email:
         return Response({'success': False, 'error': 'Bütün sahələr doldurulmalıdır!'})
+
+    try:
+        validate_email(email)
+    except ValidationError:
+        return Response({
+            'success': False,
+            'error': 'Email formatı düzgün deyil!'
+        })
     
     if NewsUsers.objects.filter(username=username).exists():
         return Response({'success': False, 'error': 'İstifadəçi adı artıq mövcuddur!'})
