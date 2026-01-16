@@ -266,6 +266,10 @@ def reset_password(request):
 
     return Response({'success': True})
 
+#Delete
+# @api_view({'POST'})
+# def delete_chat(request):
+    
 
 
 
