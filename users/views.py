@@ -269,20 +269,25 @@ def reset_password(request):
 #Delete
 @api_view(['POST'])
 def delete_chat(request):
-    current_user_id = int(request.data.get('user_id'))
-    message_id = int(request.data.get('msg_id'))
-
     try:
-        msg = Message.objects.get(id = message_id)
-    except Message.DoesNotExist:
-        return Response({'success': False})
+        current_user_id = int(request.data.get('user_id'))
+        message_id = int(request.data.get('msg_id'))
+        
+        msg = Message.objects.get(id=message_id)
 
-    if current_user_id == msg.sender.id or current_user_id == msg.receiver.id:
-        msg.deleted_for += [current_user_id] 
-        msg.save()
-        return Response({'success': True})
-    else:
-        return Response({'success': False})
+        if msg.deleted_for is None:
+            msg.deleted_for = []
+
+        if current_user_id == msg.sender.id or current_user_id == msg.receiver.id:
+            msg.deleted_for += [current_user_id]
+            msg.save()
+            return Response({'success': True})
+        else:
+            return Response({'success': False})
+    except Exception as e:
+        print("Delete chat error:", e)
+        return Response({'success': False, 'error': str(e)}, status=500)
+
 
     
 
