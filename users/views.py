@@ -269,8 +269,8 @@ def reset_password(request):
 #Delete
 @api_view(['POST'])
 def delete_chat(request):
-    current_user_id = request.data.get('user_id')
-    message_id = request.data.get('msg_id')
+    current_user_id = int(request.data.get('user_id'))
+    message_id = int(request.data.get('msg_id'))
 
     try:
         msg = Message.objects.get(id = message_id)
