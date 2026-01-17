@@ -266,27 +266,28 @@ def reset_password(request):
 
     return Response({'success': True})
 
-#Delete
+# Delete message
 @api_view(['POST'])
 def delete_chat(request):
     try:
         current_user_id = int(request.data.get('user_id'))
         message_id = int(request.data.get('msg_id'))
-        
+    except (TypeError, ValueError):
+        return Response({'success': False, 'error': 'ID-lər düzgün deyil'})
+
+    try:
         msg = Message.objects.get(id=message_id)
+    except Message.DoesNotExist:
+        return Response({'success': False, 'error': 'Mesaj tapılmadı'})
 
-        if msg.deleted_for is None:
-            msg.deleted_for = []
-
-        if current_user_id == msg.sender.id or current_user_id == msg.receiver.id:
-            msg.deleted_for += [current_user_id]
+    if current_user_id == msg.sender.id or current_user_id == msg.receiver.id:
+        if current_user_id not in msg.deleted_for:
+            msg.deleted_for.append(current_user_id)
             msg.save()
-            return Response({'success': True})
-        else:
-            return Response({'success': False})
-    except Exception as e:
-        print("Delete chat error:", e)
-        return Response({'success': False, 'error': str(e)}, status=500)
+        return Response({'success': True})
+    else:
+        return Response({'success': False, 'error': 'Mesajı silmək icazən yoxdur'})
+
 
 
     
