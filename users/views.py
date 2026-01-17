@@ -267,8 +267,23 @@ def reset_password(request):
     return Response({'success': True})
 
 #Delete
-# @api_view({'POST'})
-# def delete_chat(request):
+@api_view(['POST'])
+def delete_chat(request):
+    current_user_id = request.data.get('user_id')
+    message_id = request.data.get('msg_id')
+
+    try:
+        msg = Message.objects.get(id = message_id)
+    except Message.DoesNotExist:
+        return Response({'success': False})
+
+    if current_user_id == msg.sender.id or current_user_id == msg.receiver.id:
+        msg.deleted_for += [current_user_id] 
+        msg.save()
+        return Response({'success': True})
+    else:
+        return Response({'success': False})
+
     
 
 
