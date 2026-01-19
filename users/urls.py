@@ -14,5 +14,5 @@ urlpatterns = [
     path('verify-code/', views.verify_code, name='verify_code'),
     path('reset-password/', views.reset_password, name='reset_password'),
     path('delete-chat/', views.delete_chat, name='delete_chat'),
-#     path('unsend-chat/', views.unsend_chat, name='unsend_chat'),
+    path('unsend-chat/', views.unsend_chat, name='unsend_chat'),
 ]
