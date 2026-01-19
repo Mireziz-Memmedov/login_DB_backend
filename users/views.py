@@ -302,10 +302,9 @@ def unsend_chat(request):
     except Message.DoesNotExist:
         return Response({'success': False, 'error': 'Mesaj tapılmadı'})
 
-    if current_user_id == msg.sender.id or current_user_id == msg.receiver.id:
-        if current_user_id not in msg.is_unsend:
-            msg.is_unsend.append(current_user_id)
-            msg.save()
+    if current_user_id == msg.sender.id:
+        msg.is_unsend = True
+        msg.save()
         return Response({'success': True})
     else:
         return Response({'success': False, 'error': 'Mesajı silmək icazən yoxdur'})
