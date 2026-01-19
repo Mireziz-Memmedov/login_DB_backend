@@ -303,7 +303,7 @@ def unsend_chat(request):
         return Response({'success': False, 'error': 'Mesaj tapılmadı'})
 
     if current_user_id == msg.sender.id:
-        msg.is_unsend = True
+        msg.deleted_for_everyone = True
         msg.save()
         return Response({'success': True})
     else:
