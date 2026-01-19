@@ -30,7 +30,7 @@ class Message(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     is_read = models.BooleanField(default=False)
     deleted_for = models.JSONField(default=list)
-    # is_unsend = models.BooleanField(default=False)
+    is_unsend = models.BooleanField(default=False)
     
     class Meta:
         ordering = ['timestamp']
