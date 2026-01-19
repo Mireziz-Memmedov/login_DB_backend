@@ -288,6 +288,27 @@ def delete_chat(request):
     else:
         return Response({'success': False, 'error': 'Mesajı silmək icazən yoxdur'})
 
+# Unsend message
+@api_view(['POST'])
+def unsend_chat(request):
+    try:
+        current_user_id = int(request.data.get('user_id')) 
+        message_id = int(request.data.get('msg_id'))
+    except (TypeError, ValueError):
+        return Response({'success': False, 'error': 'ID-lər düzgün deyil'})
+
+    try:
+        msg = Message.objects.get(id = message_id)
+    except Message.DoesNotExist:
+        return Response({'success': False, 'error': 'Mesaj tapılmadı'})
+
+    if current_user_id == msg.sender.id or current_user_id == msg.receiver.id:
+        if current_user_id not in msg.is_unsend:
+            msg.is_unsend.append(current_user_id)
+            msg.save()
+        return Response({'success': True})
+    else:
+        return Response({'success': False, 'error': 'Mesajı silmək icazən yoxdur'})
 
 
     
