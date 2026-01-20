@@ -145,6 +145,7 @@ def get_messages(request):
         deleted_for_everyone=False
     )
     
+    current_user_id = int(current_user_id)
     msgs = [m for m in msgs if current_user_id not in m.deleted_for]
 
     msgs = msgs.order_by('-timestamp')[offset:offset + limit]
