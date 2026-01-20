@@ -141,8 +141,11 @@ def get_messages(request):
     unread_messages.update(is_read=True)
 
     msgs = Message.objects.filter(
-        Q(sender=user, receiver=target_user) | Q(sender=target_user, receiver=user)
-    ).order_by('-timestamp')[offset:offset + limit]
+        Q(sender=user, receiver=target_user) | Q(sender=target_user, receiver=user),
+        deleted_for_everyone=False
+    ).exclude(deleted_for__contains=[current_user_id])
+
+    msgs = msgs.order_by('-timestamp')[offset:offset + limit]
     
     serializer = MessageSerializer(msgs, many=True)
     return Response({
