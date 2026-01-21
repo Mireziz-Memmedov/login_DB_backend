@@ -319,22 +319,29 @@ def unsend_chat(request):
 def delete_profile_chats(request):
     try:
         current_user_id = int(request.data.get('user_id'))
+        target_username = request.data.get('target_username')
     except (TypeError, ValueError):
         return Response({'success': False, 'error': 'ID düzgün deyil'}) 
 
     try:
         user = NewsUsers.objects.get(id=current_user_id)
+        target_user = NewsUsers.objects.get(username=target_username)
+
+        user_messages = Message.objects.filter(
+            Q(sender=user, receiver=target_user) |
+            Q(sender=target_user, receiver=user)
+        )
+
+        for msg in user_messages:
+            if current_user_id not in msg.deleted_for:
+                msg.deleted_for.append(current_user_id)
+                msg.save()
+
+        return Response({'success': True})
+
     except NewsUsers.DoesNotExist:
         return Response({'success': False, 'error': 'İstifadəçi tapılmadı'})
 
-    user_messages = Message.objects.filter(Q(sender=user) | Q(receiver=user))
-
-    for msg in user_messages:
-        if current_user_id not in msg.deleted_for:
-            msg.deleted_for.append(current_user_id)
-            msg.save()
-
-    return Response({'success': True})
 
     
 
