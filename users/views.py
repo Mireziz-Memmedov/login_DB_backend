@@ -324,14 +324,18 @@ def delete_profile_chats(request):
 
     try:
         user = NewsUsers.objects.get(id=current_user_id)
-        user_messages = Message.objects.filter(Q(sender=user) | Q(receiver=user))
-    
+    except NewsUsers.DoesNotExist:
+        return Response({'success': False, 'error': 'İstifadəçi tapılmadı'})
+
+    user_messages = Message.objects.filter(Q(sender=user) | Q(receiver=user))
+
     for msg in user_messages:
         if current_user_id not in msg.deleted_for:
             msg.deleted_for.append(current_user_id)
             msg.save()
 
     return Response({'success': True})
+
     
 
 
