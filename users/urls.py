@@ -15,4 +15,5 @@ urlpatterns = [
     path('reset-password/', views.reset_password, name='reset_password'),
     path('delete-chat/', views.delete_chat, name='delete_chat'),
     path('unsend-chat/', views.unsend_chat, name='unsend_chat'),
+    path('delete-profile-chats/', views.delete_profile_chats, name='delete_profile_chats'),
 ]
