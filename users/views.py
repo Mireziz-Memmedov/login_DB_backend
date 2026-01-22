@@ -116,8 +116,6 @@ def send_message(request):
         return Response({'success': False, 'error': 'ID səhv formatdadır'})
 
 # Get messages
-# Get messages - tam işlək, refresh zamanı mesajlar geri gəlmir
-# Get messages - tam işlək, refresh zamanı mesajlar geri gəlmir
 @api_view(['GET'])
 def get_messages(request):
     current_user_id = request.GET.get('user_id')
@@ -131,38 +129,33 @@ def get_messages(request):
     
     try:
         user = NewsUsers.objects.get(id=current_user_id)
+    except (NewsUsers.DoesNotExist, ValueError):
+        return Response({'messages': [], 'error': 'İstifadəçi tapılmadı'})
+    
+    try:
         target_user = NewsUsers.objects.get(username=target_user_name)
     except NewsUsers.DoesNotExist:
-        return Response({'messages': [], 'error': 'İstifadəçi tapılmadı'})
+        return Response({'messages': [], 'error': 'Hədəf istifadəçi tapılmadı'})
 
+    unread_messages = Message.objects.filter(sender=target_user, receiver=user, is_read=False)
+    unread_messages.update(is_read=True)
+    
     current_user_id = int(current_user_id)
+    
+    msgs = Message.objects.filter(
+        Q(sender=user, receiver=target_user) | Q(sender=target_user, receiver=user),
+        deleted_for_everyone=False
+    ).exclude(deleted_for__contains=[current_user_id])
 
-    # unread mesajları oxundu kimi işarələ
-    Message.objects.filter(sender=target_user, receiver=user, is_read=False).update(is_read=True)
-
-    # Bütün mesajları al
-    all_msgs = Message.objects.filter(
-        Q(sender=user, receiver=target_user) | Q(sender=target_user, receiver=user)
-    ).order_by('-timestamp')
-
-    # Filter - həm deleted_for, həm deleted_for_everyone
-    filtered_msgs = []
-    for msg in all_msgs:
-        deleted_for_list = msg.deleted_for or []
-        if not msg.deleted_for_everyone and current_user_id not in deleted_for_list:
-            filtered_msgs.append(msg)
-
-    # Limit və offset tətbiq et
-    msgs_page = filtered_msgs[offset:offset + limit]
-
-    serializer = MessageSerializer(msgs_page, many=True)
-
-    # Daha çox mesaj var yoxla
-    has_more = len(filtered_msgs) > offset + limit
-
+    msgs = msgs.order_by('-timestamp')[offset:offset + limit]
+    
+    serializer = MessageSerializer(msgs, many=True)
     return Response({
-        'messages': serializer.data[::-1],  # oldest əvvəl görünsün
-        'has_more': has_more
+        'messages': serializer.data[::-1], 
+        'has_more': Message.objects.filter(
+            Q(sender=user, receiver=target_user) |
+            Q(sender=target_user, receiver=user)
+        ).count() > offset + limit
     })
 
 # User status
