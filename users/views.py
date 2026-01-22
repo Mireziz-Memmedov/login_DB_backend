@@ -318,32 +318,31 @@ def unsend_chat(request):
 @api_view(['POST'])
 def delete_profile_chats(request):
     try:
-        current_user_id = request.data.get('user_id')
+        current_user_id = int(request.data.get('user_id'))
         target_username = request.data.get('target_username')
     except (TypeError, ValueError):
         return Response({'success': False, 'error': 'ID düzgün deyil'}) 
 
     try:
-        user = NewsUsers.objects.get(id=int(current_user_id))
+        user = NewsUsers.objects.get(id=current_user_id)
         target_user = NewsUsers.objects.get(username=target_username)
 
-        messages = Message.objects.filter(
+        user_messages = Message.objects.filter(
             Q(sender=user, receiver=target_user) |
             Q(sender=target_user, receiver=user)
         )
 
-        uid_str = str(current_user_id)
-
-        for msg in messages:
-            if uid_str not in msg.deleted_for:
-                msg.deleted_for.append(uid_str)
+        for msg in user_messages:
+            deleted_for_list = msg.deleted_for or []
+            if current_user_id not in deleted_for_list:
+                deleted_for_list.append(current_user_id)
+                msg.deleted_for = deleted_for_list
                 msg.save(update_fields=['deleted_for'])
 
         return Response({'success': True})
 
     except NewsUsers.DoesNotExist:
         return Response({'success': False, 'error': 'İstifadəçi tapılmadı'})
-
 
 
     
