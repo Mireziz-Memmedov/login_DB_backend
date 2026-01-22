@@ -145,7 +145,7 @@ def get_messages(request):
     msgs = Message.objects.filter(
         Q(sender=user, receiver=target_user) | Q(sender=target_user, receiver=user),
         deleted_for_everyone=False
-    ).exclude(deleted_for__contains=[current_user_id]).exclude(deleted_profile__contains=[current_user_id]).count()
+    ).exclude(deleted_for__contains=[current_user_id]).exclude(deleted_profile__contains=[current_user_id])
 
     msgs = msgs.order_by('-timestamp')[offset:offset + limit]
     
