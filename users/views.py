@@ -333,23 +333,10 @@ def delete_profile_chats(request):
         )
 
         for msg in user_messages:
-            if current_user_id not in msg.deleted_for:
-                msg.deleted_for.append(current_user_id)
-                msg.save(update_fields=['deleted_for'])
+            msg.deleted_for = list(set(msg.deleted_for + [current_user_id]))
+            msg.save(update_fields=['deleted_for'])
 
         return Response({'success': True})
 
     except NewsUsers.DoesNotExist:
         return Response({'success': False, 'error': 'İstifadəçi tapılmadı'})
-
-
-
-    
-
-
-
-
-    
-
-
-
