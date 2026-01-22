@@ -117,6 +117,7 @@ def send_message(request):
 
 # Get messages
 # Get messages - tam işlək, refresh zamanı mesajlar geri gəlmir
+# Get messages - tam işlək, refresh zamanı mesajlar geri gəlmir
 @api_view(['GET'])
 def get_messages(request):
     current_user_id = request.GET.get('user_id')
@@ -130,38 +131,37 @@ def get_messages(request):
     
     try:
         user = NewsUsers.objects.get(id=current_user_id)
-    except (NewsUsers.DoesNotExist, ValueError):
-        return Response({'messages': [], 'error': 'İstifadəçi tapılmadı'})
-    
-    try:
         target_user = NewsUsers.objects.get(username=target_user_name)
     except NewsUsers.DoesNotExist:
-        return Response({'messages': [], 'error': 'Hədəf istifadəçi tapılmadı'})
-
-    # unread mesajları oxundu kimi işarələ
-    unread_messages = Message.objects.filter(sender=target_user, receiver=user, is_read=False)
-    unread_messages.update(is_read=True)
+        return Response({'messages': [], 'error': 'İstifadəçi tapılmadı'})
 
     current_user_id = int(current_user_id)
 
-    # Bütün mesajları al
-    msgs = Message.objects.filter(
-        Q(sender=user, receiver=target_user) | Q(sender=target_user, receiver=user)
-    ).filter(deleted_for_everyone=False).order_by('-timestamp')
+    # unread mesajları oxundu kimi işarələ
+    Message.objects.filter(sender=target_user, receiver=user, is_read=False).update(is_read=True)
 
-    # Python tərəfində filter et ki, deleted_for içində olan mesajlar çıxarılsın
-    msgs = [m for m in msgs if current_user_id not in (m.deleted_for or [])]
+    # Bütün mesajları al
+    all_msgs = Message.objects.filter(
+        Q(sender=user, receiver=target_user) | Q(sender=target_user, receiver=user)
+    ).order_by('-timestamp')
+
+    # Filter - həm deleted_for, həm deleted_for_everyone
+    filtered_msgs = []
+    for msg in all_msgs:
+        deleted_for_list = msg.deleted_for or []
+        if not msg.deleted_for_everyone and current_user_id not in deleted_for_list:
+            filtered_msgs.append(msg)
 
     # Limit və offset tətbiq et
-    msgs_page = msgs[offset:offset + limit]
+    msgs_page = filtered_msgs[offset:offset + limit]
 
     serializer = MessageSerializer(msgs_page, many=True)
 
     # Daha çox mesaj var yoxla
-    has_more = len(msgs) > offset + limit
+    has_more = len(filtered_msgs) > offset + limit
 
     return Response({
-        'messages': serializer.data[::-1],  # əksinə çevir ki, oldest əvvəl görünsün
+        'messages': serializer.data[::-1],  # oldest əvvəl görünsün
         'has_more': has_more
     })
 
