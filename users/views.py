@@ -327,15 +327,15 @@ def delete_profile_chats(request):
         user = NewsUsers.objects.get(id=current_user_id)
         target_user = NewsUsers.objects.get(username=target_username)
 
-        user_messages = Message.objects.filter(
+        messages = Message.objects.filter(
             Q(sender=user, receiver=target_user) |
             Q(sender=target_user, receiver=user)
         )
 
-        for msg in user_messages:
+        for msg in messages:
             if current_user_id not in msg.deleted_for:
                 msg.deleted_for.append(current_user_id)
-                msg.save()
+                msg.save(update_fields=['deleted_for'])
 
         return Response({'success': True})
 
