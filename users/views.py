@@ -145,7 +145,7 @@ def get_messages(request):
     msgs = Message.objects.filter(
         Q(sender=user, receiver=target_user) | Q(sender=target_user, receiver=user),
         deleted_for_everyone=False
-    ).exclude(deleted_for__contains=[current_user_id])
+    ).exclude(deleted_for__contains=[current_user_id]).exclude(deleted_profile__contains=[current_user_id]).count()
 
     msgs = msgs.order_by('-timestamp')[offset:offset + limit]
     
@@ -333,23 +333,11 @@ def delete_profile_chats(request):
         )
 
         for msg in user_messages:
-            current_deleted = [int(x) for x in msg.deleted_for]
-            msg.deleted_for = list(set(current_deleted + [current_user_id]))
-            msg.save(update_fields=['deleted_for'])
+            if current_user_id not in msg.deleted_profile:
+                msg.deleted_profile.append(current_user_id)
+                msg.save(update_fields=['deleted_profile'])
 
         return Response({'success': True})
 
     except NewsUsers.DoesNotExist:
         return Response({'success': False, 'error': 'İstifadəçi tapılmadı'})
-
-
-
-    
-
-
-
-
-    
-
-
-

@@ -31,6 +31,7 @@ class Message(models.Model):
     is_read = models.BooleanField(default=False)
     deleted_for = models.JSONField(default=list)
     deleted_for_everyone = models.BooleanField(default=False)
+    deleted_profile = models.JSONField(default=list)
     
     class Meta:
         ordering = ['timestamp']
