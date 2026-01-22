@@ -333,8 +333,10 @@ def delete_profile_chats(request):
         )
 
         for msg in user_messages:
-            if current_user_id not in msg.deleted_for:
-                msg.deleted_for.append(current_user_id)
+            deleted_list = msg.deleted_for or []
+            if current_user_id not in deleted_list:
+                deleted_list.append(current_user_id)
+                msg.deleted_for = deleted_list
                 msg.save(update_fields=['deleted_for'])
 
         return Response({'success': True})
