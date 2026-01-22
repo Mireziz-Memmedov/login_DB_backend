@@ -142,20 +142,23 @@ def get_messages(request):
     
     current_user_id = int(current_user_id)
     
+    # Burada mesajlar həm deleted_for_everyone yoxlanır, həm də deleted_for listinə uyğun exclude edilir
     msgs = Message.objects.filter(
         Q(sender=user, receiver=target_user) | Q(sender=target_user, receiver=user),
         deleted_for_everyone=False
-    ).exclude(deleted_for__contains=[current_user_id])
+    ).exclude(deleted_for__contains=current_user_id).order_by('-timestamp')[offset:offset + limit]
 
-    msgs = msgs.order_by('-timestamp')[offset:offset + limit]
-    
     serializer = MessageSerializer(msgs, many=True)
+    
+    # has_more hesablaması üçün total mesaj sayını yoxlayırıq
+    total_msgs = Message.objects.filter(
+        Q(sender=user, receiver=target_user) | Q(sender=target_user, receiver=user),
+        deleted_for_everyone=False
+    ).exclude(deleted_for__contains=current_user_id).count()
+    
     return Response({
-        'messages': serializer.data[::-1], 
-        'has_more': Message.objects.filter(
-            Q(sender=user, receiver=target_user) |
-            Q(sender=target_user, receiver=user)
-        ).count() > offset + limit
+        'messages': serializer.data[::-1],  # oldest first
+        'has_more': total_msgs > offset + limit
     })
 
 # User status
