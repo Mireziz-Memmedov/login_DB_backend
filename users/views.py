@@ -123,39 +123,39 @@ def get_messages(request):
     limit = int(request.GET.get('limit', 10))
     offset = int(request.GET.get('offset', 0))
     limit = min(limit, 50)
-    
+
     if not current_user_id or not target_user_name:
         return Response({'messages': [], 'error': 'user_id və user tələb olunur'})
-    
+
     try:
         user = NewsUsers.objects.get(id=current_user_id)
-    except (NewsUsers.DoesNotExist, ValueError):
-        return Response({'messages': [], 'error': 'İstifadəçi tapılmadı'})
-    
-    try:
         target_user = NewsUsers.objects.get(username=target_user_name)
     except NewsUsers.DoesNotExist:
-        return Response({'messages': [], 'error': 'Hədəf istifadəçi tapılmadı'})
+        return Response({'messages': [], 'error': 'İstifadəçi tapılmadı'})
 
+    # unread mesajları oxundu kimi işarələyirik
     unread_messages = Message.objects.filter(sender=target_user, receiver=user, is_read=False)
     unread_messages.update(is_read=True)
-    
+
     current_user_id = int(current_user_id)
 
-    msgs = Message.objects.filter(
+    # Bütün mesajları al, sonra Python tərəfdən deleted_for yoxla
+    msgs_qs = Message.objects.filter(
         Q(sender=user, receiver=target_user) | Q(sender=target_user, receiver=user),
         deleted_for_everyone=False
-    ).exclude(deleted_for__contains=[current_user_id])
+    ).order_by('-timestamp')
 
-    msgs = msgs.order_by('-timestamp')[offset:offset + limit]
-    
-    serializer = MessageSerializer(msgs, many=True)
+    # 🔹 Python filter ilə deleted_for yoxlayırıq
+    msgs = [m for m in msgs_qs if current_user_id not in (m.deleted_for or [])]
+
+    # pagination
+    msgs_paginated = msgs[offset:offset + limit]
+
+    serializer = MessageSerializer(msgs_paginated, many=True)
+
     return Response({
-        'messages': serializer.data[::-1], 
-        'has_more': Message.objects.filter(
-            Q(sender=user, receiver=target_user) |
-            Q(sender=target_user, receiver=user)
-        ).count() > offset + limit
+        'messages': serializer.data[::-1],  # köhnədən yeni sıralama
+        'has_more': len(msgs) > offset + limit
     })
 
 # User status
