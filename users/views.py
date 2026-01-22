@@ -116,6 +116,7 @@ def send_message(request):
         return Response({'success': False, 'error': 'ID səhv formatdadır'})
 
 # Get messages
+# Get messages - tam işlək, refresh zamanı mesajlar geri gəlmir
 @api_view(['GET'])
 def get_messages(request):
     current_user_id = request.GET.get('user_id')
@@ -137,25 +138,31 @@ def get_messages(request):
     except NewsUsers.DoesNotExist:
         return Response({'messages': [], 'error': 'Hədəf istifadəçi tapılmadı'})
 
+    # unread mesajları oxundu kimi işarələ
     unread_messages = Message.objects.filter(sender=target_user, receiver=user, is_read=False)
     unread_messages.update(is_read=True)
-    
-    current_user_id = int(current_user_id)
-    
-    msgs = Message.objects.filter(
-        Q(sender=user, receiver=target_user) | Q(sender=target_user, receiver=user),
-        deleted_for_everyone=False
-    ).exclude(deleted_for__contains=[current_user_id])
 
-    msgs = msgs.order_by('-timestamp')[offset:offset + limit]
-    
-    serializer = MessageSerializer(msgs, many=True)
+    current_user_id = int(current_user_id)
+
+    # Bütün mesajları al
+    msgs = Message.objects.filter(
+        Q(sender=user, receiver=target_user) | Q(sender=target_user, receiver=user)
+    ).filter(deleted_for_everyone=False).order_by('-timestamp')
+
+    # Python tərəfində filter et ki, deleted_for içində olan mesajlar çıxarılsın
+    msgs = [m for m in msgs if current_user_id not in (m.deleted_for or [])]
+
+    # Limit və offset tətbiq et
+    msgs_page = msgs[offset:offset + limit]
+
+    serializer = MessageSerializer(msgs_page, many=True)
+
+    # Daha çox mesaj var yoxla
+    has_more = len(msgs) > offset + limit
+
     return Response({
-        'messages': serializer.data[::-1], 
-        'has_more': Message.objects.filter(
-            Q(sender=user, receiver=target_user) |
-            Q(sender=target_user, receiver=user)
-        ).count() > offset + limit
+        'messages': serializer.data[::-1],  # əksinə çevir ki, oldest əvvəl görünsün
+        'has_more': has_more
     })
 
 # User status
