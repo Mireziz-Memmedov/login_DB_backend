@@ -74,9 +74,9 @@ def recent_chats(request):
     
     try:
         user = NewsUsers.objects.get(id=current_user_id)
-        
-        sent_to = Message.objects.filter(sender=user).values('receiver__username').annotate(last_time=Max('timestamp'))
-        received_from = Message.objects.filter(receiver=user).values('sender__username').annotate(last_time=Max('timestamp'))
+
+        sent_to = Message.objects.filter(sender=user).exclude(deleted_profile__contains=[user.id]).values('receiver__username').annotate(last_time=Max('timestamp'))
+        received_from = Message.objects.filter(receiver=user).exclude(deleted_profile__contains=[user.id]).values('sender__username').annotate(last_time=Max('timestamp'))
         
         chats = {}
         for item in sent_to:
