@@ -142,23 +142,20 @@ def get_messages(request):
     
     current_user_id = int(current_user_id)
     
-    # Burada mesajlar həm deleted_for_everyone yoxlanır, həm də deleted_for listinə uyğun exclude edilir
     msgs = Message.objects.filter(
         Q(sender=user, receiver=target_user) | Q(sender=target_user, receiver=user),
         deleted_for_everyone=False
-    ).exclude(deleted_for__contains=current_user_id).order_by('-timestamp')[offset:offset + limit]
+    ).exclude(deleted_for__contains=[current_user_id])
 
+    msgs = msgs.order_by('-timestamp')[offset:offset + limit]
+    
     serializer = MessageSerializer(msgs, many=True)
-    
-    # has_more hesablaması üçün total mesaj sayını yoxlayırıq
-    total_msgs = Message.objects.filter(
-        Q(sender=user, receiver=target_user) | Q(sender=target_user, receiver=user),
-        deleted_for_everyone=False
-    ).exclude(deleted_for__contains=current_user_id).count()
-    
     return Response({
-        'messages': serializer.data[::-1],  # oldest first
-        'has_more': total_msgs > offset + limit
+        'messages': serializer.data[::-1], 
+        'has_more': Message.objects.filter(
+            Q(sender=user, receiver=target_user) |
+            Q(sender=target_user, receiver=user)
+        ).count() > offset + limit
     })
 
 # User status
@@ -336,10 +333,23 @@ def delete_profile_chats(request):
         )
 
         for msg in user_messages:
-            msg.deleted_for = list(set(msg.deleted_for + [current_user_id]))
+            current_deleted = [int(x) for x in msg.deleted_for]
+            msg.deleted_for = list(set(current_deleted + [current_user_id]))
             msg.save(update_fields=['deleted_for'])
 
         return Response({'success': True})
 
     except NewsUsers.DoesNotExist:
         return Response({'success': False, 'error': 'İstifadəçi tapılmadı'})
+
+
+
+    
+
+
+
+
+    
+
+
+
