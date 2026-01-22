@@ -139,7 +139,7 @@ def get_messages(request):
 
     unread_messages = Message.objects.filter(sender=target_user, receiver=user, is_read=False)
     unread_messages.update(is_read=True)
-
+    
     current_user_id = int(current_user_id)
     
     msgs = Message.objects.filter(
@@ -333,10 +333,8 @@ def delete_profile_chats(request):
         )
 
         for msg in user_messages:
-            deleted_list = msg.deleted_for or []
-            if current_user_id not in deleted_list:
-                deleted_list.append(current_user_id)
-                msg.deleted_for = deleted_list
+            if current_user_id not in msg.deleted_for:
+                msg.deleted_for.append(current_user_id)
                 msg.save(update_fields=['deleted_for'])
 
         return Response({'success': True})
