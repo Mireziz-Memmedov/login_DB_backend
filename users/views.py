@@ -139,13 +139,14 @@ def get_messages(request):
 
     unread_messages = Message.objects.filter(sender=target_user, receiver=user, is_read=False)
     unread_messages.update(is_read=True)
-
-    current_user_id = int(current_user_id)
     
     msgs = Message.objects.filter(
         Q(sender=user, receiver=target_user) | Q(sender=target_user, receiver=user),
         deleted_for_everyone=False
     ).exclude(deleted_for__contains=[current_user_id])
+
+    current_user_id = int(current_user_id)
+    msgs = [msg for msg in msgs if current_user_id not in msg.deleted_for]
 
     msgs = msgs.order_by('-timestamp')[offset:offset + limit]
     
