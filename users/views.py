@@ -204,6 +204,7 @@ def forgot_check(request):
         user_instance.verify_code_created_at = timezone.now()
         user_instance.save()
 
+        recipient_email = str(user_instance.email)
         send_mail(
             subject='Şifrə bərpası üçün təsdiq kodu',
             message=f'Sizin şifrə bərpa kodunuz: {verify_code}',
