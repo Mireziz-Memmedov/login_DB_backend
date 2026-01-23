@@ -62,7 +62,7 @@ def login(request):
 @api_view(['POST'])
 def search_user(request):
     query = request.data.get('username', '').strip()
-    users = NewsUsers.objects.filter(username__iexact=query).values_list('username', flat=True)
+    users = NewsUsers.objects.filter(username__exact=query).values_list('username', flat=True)
     return Response({'users': list(users)})
 
 # Recent chats
