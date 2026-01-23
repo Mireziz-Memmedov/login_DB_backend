@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import NewsUsers, Message
 from .serializers import NewsUsersSerializer, MessageSerializer
-from django.db.models import Q, Max, Case, When, F
+from django.db.models import Q, Max
 from django.utils import timezone
 from datetime import timedelta
 import random
@@ -66,27 +66,33 @@ def search_user(request):
     return Response({'users': list(users)})
 
 # Recent chats
+@api_view(['GET'])
 def recent_chats(request):
-    user = NewsUsers.objects.get(id=request.GET.get('user_id'))
+    current_user_id = request.GET.get('user_id')
+    if not current_user_id:
+        return Response({'users': []})
+    
+    try:
+        user = NewsUsers.objects.get(id=current_user_id)
 
-    chats = (
-        Message.objects
-        .filter(Q(sender=user) | Q(receiver=user))
-        .exclude(deleted_profile__contains=[user.id])
-        .annotate(
-            other_user=Case(
-                When(sender=user, then=F('receiver_id')),
-                default=F('sender_id'),
-            )
-        )
-        .values('other_user')
-        .annotate(last_time=Max('timestamp'))
-        .order_by('-last_time')
-    )
+        sent_to = Message.objects.filter(sender=user).exclude(deleted_profile__contains=[user.id]).values('receiver__username').annotate(last_time=Max('timestamp'))
+        received_from = Message.objects.filter(receiver=user).exclude(deleted_profile__contains=[user.id]).values('sender__username').annotate(last_time=Max('timestamp'))
+        
+        chats = {}
+        for item in sent_to:
+            chats[item['receiver__username']] = item['last_time']
+        for item in received_from:
+            if item['sender__username'] in chats:
+                chats[item['sender__username']] = max(chats[item['sender__username']], item['last_time'])
+            else:
+                chats[item['sender__username']] = item['last_time']
 
-    return Response({
-        'users': [c['other_user'] for c in chats]
-    })
+        sorted_users = sorted(chats.items(), key=lambda x: x[1], reverse=True)
+        users_ordered = [username for username, _ in sorted_users]
+        
+        return Response({'users': users_ordered})
+    except (NewsUsers.DoesNotExist, ValueError):
+        return Response({'users': []})
 
 # Send message
 @api_view(['POST'])
