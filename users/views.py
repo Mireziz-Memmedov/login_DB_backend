@@ -49,6 +49,11 @@ def login(request):
     try:
         user = NewsUsers.objects.get(username=username)
 
+        if user.blocked_until and user.blocked_until <= timezone.now():
+            user.failed_attempts = 0
+            user.blocked_until = None
+            user.save(update_fields=["failed_attempts", "blocked_until"])
+
         if user.blocked_until and user.blocked_until > timezone.now():
             return Response({'success': False, 'error': f'{user.blocked_until.isoformat()}, sonra yenidən cəhd edin'})
 
