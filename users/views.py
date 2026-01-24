@@ -50,16 +50,16 @@ def login(request):
         user = NewsUsers.objects.get(username=username)
 
         if user.blocked_until and user.blocked_until > timezone.now():
-            return Response({'success': False, 'error': f'{user.blocked_until.strftime("%H:%M:%S")}, sonra yenidən cəhd edin'})
+            return Response({'success': False, 'error': f'{user.blocked_until.isoformat()}, sonra yenidən cəhd edin'})
 
         if not user.check_password(password):
             user.failed_attempts += 1
             if user.failed_attempts >= 3:
-                user.blocked_until = timezone.now() + timedelta(minutes=0.5)
+                user.blocked_until = timezone.now() + timedelta(seconds=30)
             user.save(update_fields=["failed_attempts", "blocked_until"])
 
             error_msg = f'{user.blocked_until.isoformat()}, sonra yenidən cəhd edin' if user.failed_attempts >= 3 else "Şifrə yanlışdır"
-            return Response({'success': False, 'error': error_msg})
+            return Response({'success': False, 'error': error_msg, 'user': NewsUsersSerializer(user).data})
         else:
             user.failed_attempts = 0
             user.blocked_until = None
