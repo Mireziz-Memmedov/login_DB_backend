@@ -65,7 +65,7 @@ def login(request):
             user.blocked_until = None
             user.is_online = True
             user.last_seen = timezone.now()
-            user.save(update_fields=["is_online", "last_seen"])
+            user.save(update_fields=["failed_attempts", "blocked_until", "is_online", "last_seen"])
             return Response({'success': True, 'user': NewsUsersSerializer(user).data})
     except NewsUsers.DoesNotExist:
         return Response({'success': False, 'error': 'İstifadəçi tapılmadı!'})
