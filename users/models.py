@@ -8,7 +8,7 @@ class NewsUsers(models.Model):
     email = models.EmailField(max_length=254, unique=True, null=True, blank=False)
     is_online = models.BooleanField(default=False)
     last_seen = models.DateTimeField(null=True, blank=True, default=timezone.now)
-    verify_code = models.CharField(max_length=4, null=False, blank=True)
+    verify_code = models.CharField(max_length=6, null=False, blank=True)
     verify_code_created_at = models.DateTimeField(null=True, blank=True)
     failed_attempts = models.IntegerField(default=0)
     blocked_until = models.DateTimeField(null=True, blank=True)
