@@ -215,7 +215,7 @@ def forgot_check(request):
     user = NewsUsers.objects.filter(username=username_or_email) | NewsUsers.objects.filter(email=username_or_email)
 
     if user.exists():
-        verify_code = generate_verify_code(4)
+        verify_code = generate_verify_code(6)
         user_instance = user.first()
         user_instance.verify_code = verify_code
         user_instance.verify_code_created_at = timezone.now()
