@@ -19,42 +19,37 @@ def signup(request):
     password = request.data.get('password')
     email = request.data.get('email')
 
-    user = NewsUsers.objects.filter(email = email)
-
     if not username or not password or not email:
         return Response({'success': False, 'error': 'Bütün sahələr doldurulmalıdır!'})
 
     try:
         validate_email(email)
     except ValidationError:
-        return Response({
-            'success': False,
-            'error': 'Email formatı düzgün deyil!'
-        })
-    
+        return Response({'success': False, 'error': 'Email formatı düzgün deyil!'})
+
     if NewsUsers.objects.filter(username=username).exists():
         return Response({'success': False, 'error': 'İstifadəçi adı artıq mövcuddur!'})
-    
     if NewsUsers.objects.filter(email=email).exists():
         return Response({'success': False, 'error': 'Bu email ilə artıq hesab yaradılıb!'})
 
     verify_code = generate_verify_code(6)
 
-    user = NewsUsers(username=username, email=email)
-    user.set_password(password)
-    user.verify_code = verify_code
-    user.verify_code_created_at = timezone.now()
-    user.save()
+    request.session['signup_data'] = {
+        'username': username,
+        'password': password,
+        'email': email,
+        'verify_code': verify_code
+    }
 
     send_mail(
         subject='Hesabın yaradılması üçün təsdiq kodu',
         message=f'Email təsdiqləmə kodu: {verify_code}',
         from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[user.email],
+        recipient_list=[email],
         fail_silently=False,
     )
 
-    return Response({'success': True})
+    return Response({'success': True, 'message': 'Təsdiq kodu email-ə göndərildi'})
 
 def generate_verify_code(length):
     characters = string.digits
@@ -259,6 +254,22 @@ def forgot_check(request):
 def verify_code(request):
     verify_code = request.data.get('verify_code')
     dual = request.data.get('dual')
+
+    signup_data = request.session.get('signup_data')
+
+    if signup_data and verify_code == signup_data['verify_code']:
+        user = NewsUsers(username=signup_data['username'], email=signup_data['email'])
+        user.set_password(signup_data['password'])
+        user.save()
+
+        del request.session['signup_data']
+
+        return Response({
+            'success': True,
+            'dual': dual,
+            'user_id': user.id,
+            'username': user.username
+        })
 
     user_instance = NewsUsers.objects.filter(verify_code=verify_code).first()
 
