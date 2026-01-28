@@ -256,35 +256,40 @@ def verify_code(request):
     dual = request.data.get('dual')
 
     signup_data = request.session.get('signup_data')
+    if dual == 'signup' and signup_data:
+        if verify_code == signup_data['verify_code']:
+            user = NewsUsers(
+                username=signup_data['username'],
+                email=signup_data['email']
+            )
+            user.set_password(signup_data['password'])
+            user.save()
+            del request.session['signup_data']
 
-    if signup_data and verify_code == signup_data['verify_code']:
-        user = NewsUsers(username=signup_data['username'], email=signup_data['email'])
-        user.set_password(signup_data['password'])
-        user.save()
+            return Response({
+                'success': True,
+                'dual': dual,
+                'user_id': user.id,
+                'username': user.username
+            })
+        else:
+            return Response({'success': False, 'error': 'Kod yanlışdır'})
 
-        del request.session['signup_data']
+    if dual == 'forgot':
+        user_instance = NewsUsers.objects.filter(verify_code=verify_code).order_by('-verify_code_created_at').first()
+        if not user_instance:
+            return Response({'success': False, 'error': 'Kod yanlışdır'})
+        if timezone.now() - user_instance.verify_code_created_at > timedelta(minutes=5):
+            return Response({'success': False, 'error': 'Kodun vaxtı bitib'})
 
         return Response({
             'success': True,
             'dual': dual,
-            'user_id': user.id,
-            'username': user.username
+            'user_id': user_instance.id,
+            'username': user_instance.username
         })
 
-    user_instance = NewsUsers.objects.filter(verify_code=verify_code).first()
-
-    if not user_instance:
-        return Response({'success': False, 'error': 'Kod yanlışdır'})
-
-    if timezone.now() - user_instance.verify_code_created_at > timedelta(minutes=5):
-        return Response({'success': False, 'error': 'Kodun vaxtı bitib'})
-
-    return Response({
-        'success': True,
-        'dual': dual,
-        'user_id': user_instance.id,
-        'username': user_instance.username
-    })
+    return Response({'success': False, 'error': 'Yanlış əməliyyat'})
 
 #Reset password
 @api_view(['POST'])
