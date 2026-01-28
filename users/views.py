@@ -19,6 +19,8 @@ def signup(request):
     password = request.data.get('password')
     email = request.data.get('email')
 
+    user = NewsUsers.objects.filter(email = email)
+
     if not username or not password or not email:
         return Response({'success': False, 'error': 'Bütün sahələr doldurulmalıdır!'})
 
@@ -35,11 +37,30 @@ def signup(request):
     
     if NewsUsers.objects.filter(email=email).exists():
         return Response({'success': False, 'error': 'Bu email ilə artıq hesab yaradılıb!'})
-    
+
+    verify_code = generate_verify_code(6)
+
     user = NewsUsers(username=username, email=email)
     user.set_password(password)
+    user.verify_code = verify_code
+    user.verify_code_created_at = timezone.now()
     user.save()
+
+    send_mail(
+        subject='Hesabın yaradılması üçün təsdiq kodu',
+        message=f'Email təsdiqləmə kodu: {verify_code}',
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[user.email],
+        fail_silently=False,
+    )
+
     return Response({'success': True})
+
+def generate_verify_code(length):
+    characters = string.digits
+    password = ''.join(random.choice(characters) for i in range(length))
+
+    return password
 
 # Login
 @api_view(['POST'])
@@ -212,7 +233,7 @@ def logout(request):
 def forgot_check(request):
 
     username_or_email = request.data.get('username_or_email')
-    user = NewsUsers.objects.filter(username=username_or_email) | NewsUsers.objects.filter(email=username_or_email)
+    user = NewsUsers.objects.filter(Q(username=username_or_email) | Q(email=username_or_email))
 
     if user.exists():
         verify_code = generate_verify_code(6)
@@ -233,29 +254,26 @@ def forgot_check(request):
     else:
         return Response({'success': False, 'error': 'İstifadəçi tapılmadı'})
 
-
-def generate_verify_code(length):
-
-        characters = string.digits
-        password = ''.join(random.choice(characters) for i in range(length))
-
-        return password
-
 #Verify Code
 @api_view(['POST'])
 def verify_code(request):
     verify_code = request.data.get('verify_code')
-    user = NewsUsers.objects.filter(verify_code=verify_code)
+    dual = request.data.get('dual')
 
-    if user.exists():
-        user_instance = user.first()
-        if timezone.now() - user_instance.verify_code_created_at <= timedelta(minutes=5):
-            user_instance.save()
-            return Response({'success': True})
-        else:
-            return Response({'success': False, 'error': 'Kodun vaxtı bitib'})
-    else:
+    user_instance = NewsUsers.objects.filter(verify_code=verify_code).first()
+
+    if not user_instance:
         return Response({'success': False, 'error': 'Kod yanlışdır'})
+
+    if timezone.now() - user_instance.verify_code_created_at > timedelta(minutes=5):
+        return Response({'success': False, 'error': 'Kodun vaxtı bitib'})
+
+    return Response({
+        'success': True,
+        'dual': dual,
+        'user_id': user_instance.id,
+        'username': user_instance.username
+    })
 
 #Reset password
 @api_view(['POST'])
