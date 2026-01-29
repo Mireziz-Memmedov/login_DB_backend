@@ -21,7 +21,7 @@ def signup(request):
 
     NewsUsers.objects.filter(
         is_active=False,
-        verify_code_created_at__lt=timezone.now() - timedelta(minutes=1)
+        verify_code_created_at__lt=timezone.now() - timedelta(minutes=5)
     ).delete()
 
     if not username or not password or not email:
