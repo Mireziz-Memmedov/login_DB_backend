@@ -65,8 +65,12 @@ def generate_verify_code(length):
 def login(request):
     username = request.data.get('username')
     password = request.data.get('password')
+
     try:
         user = NewsUsers.objects.get(username=username)
+
+        if not user.is_active:
+            return Response({'success': False, 'error': 'Hesab təsdiqlənməyib!'})
 
         if user.blocked_until and user.blocked_until <= timezone.now():
             user.failed_attempts = 0
@@ -270,7 +274,7 @@ def verify_code(request):
     user_instance.verify_code = ''
     user_instance.verify_code_created_at = None
     user_instance.save()
-    
+
     return Response({
         'success': True,
         'dual': dual,
