@@ -19,6 +19,11 @@ def signup(request):
     password = request.data.get('password')
     email = request.data.get('email')
 
+    NewsUsers.objects.filter(
+        is_active=False,
+        verify_code_created_at__lt=timezone.now() - timedelta(minutes=1)
+    ).delete()
+
     if not username or not password or not email:
         return Response({'success': False, 'error': 'Bütün sahələr doldurulmalıdır!'})
 
