@@ -75,7 +75,7 @@ def login(request):
         user = NewsUsers.objects.get(username=username)
 
         if not user.is_active:
-            return Response({'success': False, 'error': 'Hesab təsdiqlənməyib!'})
+            return Response({'success': False, 'error': 'Hesab təsdiqlənməyib!', 'user': NewsUsersSerializer(user).data})
 
         if user.blocked_until and user.blocked_until <= timezone.now():
             user.failed_attempts = 0
