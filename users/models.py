@@ -12,7 +12,8 @@ class NewsUsers(models.Model):
     verify_code_created_at = models.DateTimeField(null=True, blank=True)
     failed_attempts = models.IntegerField(default=0)
     blocked_until = models.DateTimeField(null=True, blank=True)
-    
+    is_active = models.BooleanField(default=False)
+
     class Meta:
         db_table = 'login'
 

@@ -34,12 +34,15 @@ def signup(request):
 
     verify_code = generate_verify_code(6)
 
-    request.session['signup_data'] = {
-        'username': username,
-        'password': password,
-        'email': email,
-        'verify_code': verify_code
-    }
+    user = NewsUsers.objects.create(
+        username=username,
+        email=email,
+        is_active=False,
+        verify_code=verify_code,
+        verify_code_created_at=timezone.now()
+    )
+    user.set_password(password)
+    user.save()
 
     send_mail(
         subject='Hesabın yaradılması üçün təsdiq kodu',
@@ -255,22 +258,6 @@ def verify_code(request):
     verify_code = request.data.get('verify_code')
     dual = request.data.get('dual')
 
-    signup_data = request.session.get('signup_data')
-
-    if signup_data and verify_code == signup_data['verify_code']:
-        user = NewsUsers(username=signup_data['username'], email=signup_data['email'])
-        user.set_password(signup_data['password'])
-        user.save()
-
-        del request.session['signup_data']
-
-        return Response({
-            'success': True,
-            'dual': dual,
-            'user_id': user.id,
-            'username': user.username
-        })
-
     user_instance = NewsUsers.objects.filter(verify_code=verify_code).first()
 
     if not user_instance:
@@ -279,6 +266,11 @@ def verify_code(request):
     if timezone.now() - user_instance.verify_code_created_at > timedelta(minutes=5):
         return Response({'success': False, 'error': 'Kodun vaxtı bitib'})
 
+    user_instance.is_active = True
+    user_instance.verify_code = ''
+    user_instance.verify_code_created_at = None
+    user_instance.save()
+    
     return Response({
         'success': True,
         'dual': dual,
