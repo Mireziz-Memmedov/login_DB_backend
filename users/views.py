@@ -4,6 +4,7 @@ from .models import NewsUsers, Message
 from .serializers import NewsUsersSerializer, MessageSerializer
 from django.db.models import Q, Max
 from django.utils import timezone
+import math
 from datetime import timedelta
 import random
 import string
@@ -83,7 +84,10 @@ def login(request):
             user.save(update_fields=["failed_attempts", "blocked_until"])
 
         if user.blocked_until and user.blocked_until > timezone.now():
-            return Response({'success': False, 'error': f'{user.blocked_until.isoformat()}, sonra yenidən cəhd edin'})
+            seconds_left = math.ceil(
+                (user.blocked_until - timezone.now()).total_seconds()
+            )
+            return Response({'success': False, 'seconds_left': seconds_left, 'error': f'{seconds_left} saniyə sonra yenidən cəhd edin'})
 
         if not user.check_password(password):
             user.failed_attempts += 1
