@@ -1,4 +1,5 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import NewsUsers, Message
 from .serializers import NewsUsersSerializer, MessageSerializer
@@ -387,3 +388,23 @@ def delete_profile_chats(request):
 
     except NewsUsers.DoesNotExist:
         return Response({'success': False, 'error': 'İstifadəçi tapılmadı'})
+
+#Delete Profile Forever
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def deleted_profile_forever(request):
+    username = request.data.get('username')
+
+    if not username:
+        return Response({'success': False, 'error': 'İstifadəçi adı göndərilməyib!'})
+
+    if request.user.username != username:
+        return Response({'success': False, 'error': 'Başqa istifadəçi profilini silmək olmaz!'})
+
+    delete_count, _= NewsUsers.objects.filter(username=username).delete()
+
+    if delete_count > 0:
+        return Response({'success': True, 'message': 'Profil uğurla silindi!'})
+    else:
+        return Response({'success': False, 'error': 'İstifadəçi tapılmadı!'})
+
