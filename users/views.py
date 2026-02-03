@@ -1,4 +1,4 @@
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework.authentication import TokenAuthentication
@@ -110,7 +110,7 @@ def login(request):
             token, created = Token.objects.get_or_create(user=user)
 
             return Response({'success': True, 'token': token.key, 'user': NewsUsersSerializer(user).data})
-            
+
     except NewsUsers.DoesNotExist:
         return Response({'success': False, 'error': 'İstifadəçi tapılmadı!'})
 
