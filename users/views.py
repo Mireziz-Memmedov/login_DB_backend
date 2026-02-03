@@ -74,6 +74,7 @@ def generate_verify_code(length):
 def login(request):
     username = request.data.get('username')
     password = request.data.get('password')
+    print("LOGIN DATA:", username, password)  # debug üçün
 
     try:
         user = NewsUsers.objects.get(username=username)
@@ -111,8 +112,9 @@ def login(request):
 
             return Response({'success': True, 'token': token.key, 'user': NewsUsersSerializer(user).data})
 
-    except NewsUsers.DoesNotExist:
-        return Response({'success': False, 'error': 'İstifadəçi tapılmadı!'})
+    except Exception as e:
+        print("LOGIN ERROR:", e)
+        return Response({'success': False, 'error': str(e)})
 
 # Search user
 @api_view(['POST'])
