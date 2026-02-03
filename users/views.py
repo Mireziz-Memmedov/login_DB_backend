@@ -107,9 +107,14 @@ def login(request):
             user.last_seen = timezone.now()
             user.save(update_fields=["failed_attempts", "blocked_until", "is_online", "last_seen"])
 
-            # token, created = Token.objects.get_or_create(user=user)
+            try:
+                token, created = Token.objects.get_or_create(user=user)
+                token_key = token.key
+            except Exception as e:
+                print("Token creation error:", e)
+                token_key = None
 
-            return Response({'success': True, 'user': NewsUsersSerializer(user).data})
+            return Response({'success': True, 'token': token_key, 'user': NewsUsersSerializer(user).data})
 
     except NewsUsers.DoesNotExist:
         return Response({'success': False, 'error': 'İstifadəçi tapılmadı!'})
