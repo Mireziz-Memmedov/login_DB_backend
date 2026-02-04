@@ -1,4 +1,7 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authtoken.models import Token
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.response import Response
 from .models import NewsUsers, Message
 from .serializers import NewsUsersSerializer, MessageSerializer
@@ -104,9 +107,12 @@ def login(request):
             user.last_seen = timezone.now()
             user.save(update_fields=["failed_attempts", "blocked_until", "is_online", "last_seen"])
 
-            if not user.api_token:
-                user.generate_token()
-            token_key = user.api_token
+            try:
+                token, created = Token.objects.get_or_create(user=user)
+                token_key = token.key
+            except Exception as e:
+                print("Token creation error:", e)
+                token_key = None
 
             return Response({'success': True, 'token': token_key, 'user': NewsUsersSerializer(user).data})
 
@@ -396,28 +402,21 @@ def delete_profile_chats(request):
 
 #Delete Profile Forever
 @api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def deleted_profile_forever(request):
-    token = request.headers.get('Authorization', '').replace('Token ', '')
-    if not token:
-        return Response({'success': False, 'error': 'Token göndərilməyib'}, status=401)
-
-    try:
-        user = NewsUsers.objects.get(api_token=token)
-    except NewsUsers.DoesNotExist:
-        return Response({'success': False, 'error': 'Token yanlışdır'}, status=401)
-
     username = request.data.get('currentUsername')
+
     if not username:
         return Response({'success': False, 'error': 'İstifadəçi adı göndərilməyib!'})
 
-    if user.username != username:
+    if request.user.username != username:
         return Response({'success': False, 'error': 'Başqa istifadəçi profilini silmək olmaz!'})
 
-    delete_count, _ = NewsUsers.objects.filter(username=username).delete()
+    delete_count, _= NewsUsers.objects.filter(username=username).delete()
 
     if delete_count > 0:
         return Response({'success': True, 'message': 'Profil uğurla silindi!'})
     else:
         return Response({'success': False, 'error': 'İstifadəçi tapılmadı!'})
-
 
