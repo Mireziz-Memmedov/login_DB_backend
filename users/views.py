@@ -246,7 +246,7 @@ def logout(request):
         user.is_online = False
         user.last_seen = timezone.now()
         user.save(update_fields=["is_online", "last_seen"])
-        
+
         Token.objects.filter(user=user).delete()
 
         return Response({'success': True})
@@ -407,18 +407,22 @@ def delete_profile_chats(request):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def deleted_profile_forever(request):
-    username = request.data.get('currentUsername')
+    try:
+        username = request.data.get('currentUsername')
+        if not username:
+            return Response({'success': False, 'error': 'İstifadəçi adı göndərilməyib!'})
 
-    if not username:
-        return Response({'success': False, 'error': 'İstifadəçi adı göndərilməyib!'})
+        user = request.user
+        if user.username != username:
+            return Response({'success': False, 'error': 'Başqa istifadəçi profilini silmək olmaz!'})
 
-    if request.user.username != username:
-        return Response({'success': False, 'error': 'Başqa istifadəçi profilini silmək olmaz!'})
+        delete_count, _= NewsUsers.objects.filter(id=user.id).delete()
 
-    delete_count, _= NewsUsers.objects.filter(username=username).delete()
-
-    if delete_count > 0:
-        return Response({'success': True, 'message': 'Profil uğurla silindi!'})
-    else:
-        return Response({'success': False, 'error': 'İstifadəçi tapılmadı!'})
+        if delete_count > 0:
+            return Response({'success': True, 'message': 'Profil uğurla silindi!'})
+        else:
+            return Response({'success': False, 'error': 'İstifadəçi tapılmadı!'})
+            
+    except Exception as e:
+        return Response({'success': False, 'error': str(e)}, status=500)
 
