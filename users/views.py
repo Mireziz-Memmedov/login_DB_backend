@@ -107,12 +107,9 @@ def login(request):
             user.last_seen = timezone.now()
             user.save(update_fields=["failed_attempts", "blocked_until", "is_online", "last_seen"])
 
-            try:
-                token, created = Token.objects.get_or_create(user=user)
-                token_key = token.key
-            except Exception as e:
-                print("Token creation error:", e)
-                token_key = None
+            if not user.api_token:
+                user.generate_token()
+            token_key = user.api_token
 
             return Response({'success': True, 'token': token_key, 'user': NewsUsersSerializer(user).data})
 

@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.hashers import make_password, check_password
 from django.utils import timezone
+import secrets
 
 class NewsUsers(models.Model):
     username = models.CharField(max_length=100, unique=True)
@@ -13,6 +14,7 @@ class NewsUsers(models.Model):
     failed_attempts = models.IntegerField(default=0)
     blocked_until = models.DateTimeField(null=True, blank=True)
     is_active = models.BooleanField(default=False)
+    api_token = models.CharField(max_length=40, unique=True, null=True, blank=True) 
 
     class Meta:
         db_table = 'login'
@@ -25,6 +27,14 @@ class NewsUsers(models.Model):
 
     def check_password(self, raw_password):
         return check_password(raw_password, self.password)
+
+    def generate_token(self):
+        while True:
+            token = secrets.token_hex(20)
+            if not NewsUsers.objects.filter(api_token=token).exists():
+                self.api_token = token
+                self.save()
+                break
 
 class Message(models.Model):
     sender = models.ForeignKey(NewsUsers, related_name='sent_messages', on_delete=models.CASCADE)
