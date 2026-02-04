@@ -19,6 +19,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
+AUTH_USER_MODEL = "users.NewsUsers"
 
 # Application definition
 
