@@ -1,7 +1,7 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
-from corsheaders.defaults import default_headers
+# from corsheaders.defaults import default_headers
 
 load_dotenv()
 
@@ -45,7 +45,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-CORS_ALLOW_HEADERS = list(default_headers) + ['Authorization']
+# CORS_ALLOW_HEADERS = list(default_headers) + ['Authorization']
 
 CORS_ALLOWED_ORIGINS = [
     "https://mireziz-memmedov.github.io",
