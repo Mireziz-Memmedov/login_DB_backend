@@ -107,11 +107,12 @@ def login(request):
             user.last_seen = timezone.now()
             user.save(update_fields=["failed_attempts", "blocked_until", "is_online", "last_seen"])
 
-            Token.objects.filter(user=user).delete()
-            
-            token = Token.objects.create(user=user)
-
-            token_key = token.key
+            try:
+                token, created = Token.objects.get_or_create(user=user)
+                token_key = token.key
+            except Exception as e:
+                print("Token creation error:", e)
+                token_key = None
 
             return Response({'success': True, 'token': token_key, 'user': NewsUsersSerializer(user).data})
 
@@ -246,9 +247,6 @@ def logout(request):
         user.is_online = False
         user.last_seen = timezone.now()
         user.save(update_fields=["is_online", "last_seen"])
-
-        Token.objects.filter(user=user).delete()
-
         return Response({'success': True})
     except NewsUsers.DoesNotExist:
         return Response({'success': False})
@@ -407,22 +405,18 @@ def delete_profile_chats(request):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def deleted_profile_forever(request):
-    try:
-        username = request.data.get('currentUsername')
-        if not username:
-            return Response({'success': False, 'error': 'İstifadəçi adı göndərilməyib!'})
+    username = request.data.get('currentUsername')
 
-        user = request.user
-        if user.username != username:
-            return Response({'success': False, 'error': 'Başqa istifadəçi profilini silmək olmaz!'})
+    if not username:
+        return Response({'success': False, 'error': 'İstifadəçi adı göndərilməyib!'})
 
-        delete_count, _= NewsUsers.objects.filter(id=user.id).delete()
+    if request.user.username != username:
+        return Response({'success': False, 'error': 'Başqa istifadəçi profilini silmək olmaz!'})
 
-        if delete_count > 0:
-            return Response({'success': True, 'message': 'Profil uğurla silindi!'})
-        else:
-            return Response({'success': False, 'error': 'İstifadəçi tapılmadı!'})
-            
-    except Exception as e:
-        return Response({'success': False, 'error': str(e)}, status=500)
+    delete_count, _= NewsUsers.objects.filter(username=username).delete()
+
+    if delete_count > 0:
+        return Response({'success': True, 'message': 'Profil uğurla silindi!'})
+    else:
+        return Response({'success': False, 'error': 'İstifadəçi tapılmadı!'})
 
