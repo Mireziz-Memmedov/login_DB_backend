@@ -52,6 +52,8 @@ CORS_ALLOWED_ORIGINS = [
     "https://jubilant-guacamole-v6w46xjgx574h464-5500.app.github.dev/",
 ]
 
+# AUTH_USER_MODEL = 'users.NewsUsers'
+
 # CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = "log.urls"
