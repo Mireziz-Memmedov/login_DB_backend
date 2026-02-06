@@ -1,7 +1,4 @@
-from rest_framework.decorators import api_view, permission_classes, authentication_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.authtoken.models import Token
-from rest_framework.authentication import TokenAuthentication
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import NewsUsers, Message
 from .serializers import NewsUsersSerializer, MessageSerializer
@@ -107,14 +104,7 @@ def login(request):
             user.last_seen = timezone.now()
             user.save(update_fields=["failed_attempts", "blocked_until", "is_online", "last_seen"])
 
-            try:
-                token, created = Token.objects.get_or_create(user=user)
-                token_key = token.key
-            except Exception as e:
-                print("Token creation error:", e)
-                token_key = None
-
-            return Response({'success': True, 'token': token_key, 'user': NewsUsersSerializer(user).data})
+            return Response({'success': True, 'user': NewsUsersSerializer(user).data})
 
     except NewsUsers.DoesNotExist:
         return Response({'success': False, 'error': 'İstifadəçi tapılmadı!'})
@@ -402,8 +392,6 @@ def delete_profile_chats(request):
 
 #Delete Profile Forever
 @api_view(['POST'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
 def deleted_profile_forever(request):
     username = request.data.get('currentUsername')
 
