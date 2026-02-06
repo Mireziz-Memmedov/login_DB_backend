@@ -394,17 +394,21 @@ def delete_profile_chats(request):
 @api_view(['POST'])
 def deleted_profile_forever(request):
     username = request.data.get('currentUsername')
+    password = request.data.get('password')
 
-    if not username:
-        return Response({'success': False, 'error': 'İstifadəçi adı göndərilməyib!'})
+    if not username or not password:
+        return Response({'success': False, 'error': 'Username və password mütləqdir!'})
 
-    if request.user.username != username:
-        return Response({'success': False, 'error': 'Başqa istifadəçi profilini silmək olmaz!'})
-
-    delete_count, _= NewsUsers.objects.filter(username=username).delete()
-
-    if delete_count > 0:
-        return Response({'success': True, 'message': 'Profil uğurla silindi!'})
-    else:
+    try:
+        user = NewsUsers.objects.get(username=username)
+    except NewsUsers.DoesNotExist:
         return Response({'success': False, 'error': 'İstifadəçi tapılmadı!'})
+
+    if not user.check_password(password):
+        return Response({'success': False, 'error': 'Password yanlışdır!'})
+    
+    user.delete()
+    return Response({'success': True, 'message': 'Profil uğurla silindi!'})
+
+    
 
