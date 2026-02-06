@@ -391,24 +391,24 @@ def delete_profile_chats(request):
         return Response({'success': False, 'error': 'İstifadəçi tapılmadı'})
 
 #Delete Profile Forever
-@api_view(['POST'])
-def deleted_profile_forever(request):
-    username = request.data.get('currentUsername')
-    password = request.data.get('password')
+# @api_view(['POST'])
+# def deleted_profile_forever(request):
+#     username = request.data.get('currentUsername')
+#     password = request.data.get('password')
 
-    if not username or not password:
-        return Response({'success': False, 'error': 'Username və password mütləqdir!'})
+#     if not username or not password:
+#         return Response({'success': False, 'error': 'Username və password mütləqdir!'})
 
-    try:
-        user = NewsUsers.objects.get(username=username)
-    except NewsUsers.DoesNotExist:
-        return Response({'success': False, 'error': 'İstifadəçi tapılmadı!'})
+#     try:
+#         user = NewsUsers.objects.get(username=username)
+#     except NewsUsers.DoesNotExist:
+#         return Response({'success': False, 'error': 'İstifadəçi tapılmadı!'})
 
-    if not user.check_password(password):
-        return Response({'success': False, 'error': 'Password yanlışdır!'})
+#     if not user.check_password(password):
+#         return Response({'success': False, 'error': 'Password yanlışdır!'})
     
-    user.delete()
-    return Response({'success': True, 'message': 'Profil uğurla silindi!'})
+#     user.delete()
+#     return Response({'success': True, 'message': 'Profil uğurla silindi!'})
 
     
 
