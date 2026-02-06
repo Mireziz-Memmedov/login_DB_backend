@@ -308,6 +308,9 @@ def reset_password(request):
         user = NewsUsers.objects.get(verify_code=verify_code)
     except NewsUsers.DoesNotExist:
         return Response({'success': False, 'error': 'Kod yanlışdır və ya vaxtı bitib'})
+    
+    if not user.verify_code_created_at:
+        return Response({'success': False, 'error': 'Kodun yaradılma vaxtı yoxdur, yenidən kod göndərin!'})
 
     if user.verify_code_created_at and timezone.now() - user.verify_code_created_at > timedelta(minutes=5):
         return Response({'success': False, 'error': 'Kodun vaxtı bitib'})
