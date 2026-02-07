@@ -288,6 +288,12 @@ def verify_code(request):
         user_instance.save()
     elif dual == 'forgot':
         pass
+    
+    else:
+        return Response({
+            'success': False,
+            'error': 'Yanlış əməliyyat növü!'
+        })
 
     return Response({
         'success': True,
@@ -396,7 +402,7 @@ def delete_profile_chats(request):
     except NewsUsers.DoesNotExist:
         return Response({'success': False, 'error': 'İstifadəçi tapılmadı'})
 
-Delete Profile Forever
+#Delete Profile Forever
 @api_view(['POST'])
 def deleted_profile_forever(request):
     username = request.data.get('currentUsername')
