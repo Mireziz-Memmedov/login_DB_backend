@@ -171,9 +171,9 @@ def send_message(request):
 def get_messages(request):
     current_user_id = request.GET.get('user_id')
     target_user_name = request.GET.get('user')
-    limit = int(request.GET.get('limit', 17))
+    limit = int(request.GET.get('limit', 20))
     offset = int(request.GET.get('offset', 0))
-    limit = min(limit, 50) 
+    # limit = min(limit, 50) 
 
     if not current_user_id or not target_user_name:
         return Response({'messages': [], 'error': 'user_id və user tələb olunur'})
