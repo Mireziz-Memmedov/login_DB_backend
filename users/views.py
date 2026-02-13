@@ -167,50 +167,6 @@ def send_message(request):
         return Response({'success': False, 'error': 'ID səhv formatdadır'})
 
 # Get messages
-# @api_view(['GET'])
-# def get_messages(request):
-#     current_user_id = request.GET.get('user_id')
-#     target_user_name = request.GET.get('user')
-#     limit = int(request.GET.get('limit', 20))
-#     offset = int(request.GET.get('offset', 0))
-#     # limit = min(limit, 50) 
-
-#     if not current_user_id or not target_user_name:
-#         return Response({'messages': [], 'error': 'user_id və user tələb olunur'})
-
-#     try:
-#         user = NewsUsers.objects.get(id=current_user_id)
-#         target_user = NewsUsers.objects.get(username=target_user_name)
-#     except NewsUsers.DoesNotExist:
-#         return Response({'messages': [], 'error': 'İstifadəçi tapılmadı'})
-
-#     current_user_id = int(current_user_id)
-
-#     Message.objects.filter(sender=target_user, receiver=user, is_read=False).update(is_read=True)
-
-#     visible_msgs = Message.objects.filter(
-#         Q(sender=user, receiver=target_user) | Q(sender=target_user, receiver=user),
-#         deleted_for_everyone=False
-#     ).exclude(deleted_for__contains=[current_user_id]).exclude(deleted_profile__contains=[current_user_id])
-
-#     total_visible = visible_msgs.count()
-
-#     msgs = visible_msgs.order_by('-timestamp')[offset:offset + limit]
-
-#     serializer = MessageSerializer(msgs, many=True)
-
-#     return Response({
-#         'messages': serializer.data[::-1],
-#         'has_more': total_visible > offset + limit
-#     })
-
-# from rest_framework.decorators import api_view
-# from rest_framework.response import Response
-# from django.db.models import Q
-# from .models import NewsUsers, Message
-# from .serializers import MessageSerializer
-
-# Get messages
 @api_view(['GET'])
 def get_messages(request):
     current_user_id = request.GET.get('user_id')
