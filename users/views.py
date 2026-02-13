@@ -167,42 +167,123 @@ def send_message(request):
         return Response({'success': False, 'error': 'ID səhv formatdadır'})
 
 # Get messages
+# @api_view(['GET'])
+# def get_messages(request):
+#     current_user_id = request.GET.get('user_id')
+#     target_user_name = request.GET.get('user')
+#     limit = int(request.GET.get('limit', 20))
+#     offset = int(request.GET.get('offset', 0))
+#     # limit = min(limit, 50) 
+
+#     if not current_user_id or not target_user_name:
+#         return Response({'messages': [], 'error': 'user_id və user tələb olunur'})
+
+#     try:
+#         user = NewsUsers.objects.get(id=current_user_id)
+#         target_user = NewsUsers.objects.get(username=target_user_name)
+#     except NewsUsers.DoesNotExist:
+#         return Response({'messages': [], 'error': 'İstifadəçi tapılmadı'})
+
+#     current_user_id = int(current_user_id)
+
+#     Message.objects.filter(sender=target_user, receiver=user, is_read=False).update(is_read=True)
+
+#     visible_msgs = Message.objects.filter(
+#         Q(sender=user, receiver=target_user) | Q(sender=target_user, receiver=user),
+#         deleted_for_everyone=False
+#     ).exclude(deleted_for__contains=[current_user_id]).exclude(deleted_profile__contains=[current_user_id])
+
+#     total_visible = visible_msgs.count()
+
+#     msgs = visible_msgs.order_by('-timestamp')[offset:offset + limit]
+
+#     serializer = MessageSerializer(msgs, many=True)
+
+#     return Response({
+#         'messages': serializer.data[::-1],
+#         'has_more': total_visible > offset + limit
+#     })
+
+# from rest_framework.decorators import api_view
+# from rest_framework.response import Response
+# from django.db.models import Q
+# from .models import NewsUsers, Message
+# from .serializers import MessageSerializer
+
+# Get messages
 @api_view(['GET'])
 def get_messages(request):
     current_user_id = request.GET.get('user_id')
     target_user_name = request.GET.get('user')
-    limit = int(request.GET.get('limit', 20))
-    offset = int(request.GET.get('offset', 0))
-    # limit = min(limit, 50) 
+
+    # infinite scroll üçün
+    try:
+        limit = int(request.GET.get('limit', 20))
+        offset = int(request.GET.get('offset', 0))
+    except ValueError:
+        return Response({'messages': [], 'error': 'limit və offset rəqəm olmalıdır'})
+
+    # polling üçün
+    last_id = request.GET.get('last_id')
+    if last_id is not None:
+        try:
+            last_id = int(last_id)
+        except ValueError:
+            last_id = None
 
     if not current_user_id or not target_user_name:
         return Response({'messages': [], 'error': 'user_id və user tələb olunur'})
 
     try:
+        current_user_id = int(current_user_id)
         user = NewsUsers.objects.get(id=current_user_id)
         target_user = NewsUsers.objects.get(username=target_user_name)
-    except NewsUsers.DoesNotExist:
+    except (ValueError, NewsUsers.DoesNotExist):
         return Response({'messages': [], 'error': 'İstifadəçi tapılmadı'})
 
-    current_user_id = int(current_user_id)
+    # oxunmamış mesajları oxundu et
+    Message.objects.filter(
+        sender=target_user,
+        receiver=user,
+        is_read=False
+    ).update(is_read=True)
 
-    Message.objects.filter(sender=target_user, receiver=user, is_read=False).update(is_read=True)
-
-    visible_msgs = Message.objects.filter(
-        Q(sender=user, receiver=target_user) | Q(sender=target_user, receiver=user),
+    # əsas filter (optimizasiyalı)
+    base_query = Message.objects.select_related(
+        'sender', 'receiver'
+    ).filter(
+        Q(sender=user, receiver=target_user) |
+        Q(sender=target_user, receiver=user),
         deleted_for_everyone=False
-    ).exclude(deleted_for__contains=[current_user_id]).exclude(deleted_profile__contains=[current_user_id])
+    ).exclude(
+        deleted_for__contains=[current_user_id]
+    ).exclude(
+        deleted_profile__contains=[current_user_id]
+    )
 
-    total_visible = visible_msgs.count()
+    # POLLING (yalnız yeni mesajlar)
+    if last_id is not None:
+        messages = base_query.filter(id__gt=last_id).order_by('id')
 
-    msgs = visible_msgs.order_by('-timestamp')[offset:offset + limit]
+        serializer = MessageSerializer(messages, many=True)
 
-    serializer = MessageSerializer(msgs, many=True)
+        return Response({
+            'messages': serializer.data,
+            'has_more': False
+        })
+
+    # İLK AÇILIŞ / SCROLL
+    total_visible = base_query.count()
+
+    messages = base_query.order_by('-id')[offset:offset + limit]
+
+    serializer = MessageSerializer(messages, many=True)
 
     return Response({
-        'messages': serializer.data[::-1],
+        'messages': serializer.data[::-1],  # düzgün ardıcıllıq
         'has_more': total_visible > offset + limit
     })
+
 
 # User status
 @api_view(['GET'])
