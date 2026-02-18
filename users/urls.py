@@ -17,4 +17,5 @@ urlpatterns = [
     path('unsend-chat/', views.unsend_chat, name='unsend_chat'),
     path('delete-profile-chats/', views.delete_profile_chats, name='delete_profile_chats'),
     path('delete-profile-forever/', views.deleted_profile_forever, name='delete_profile_forever'),
+    path('edit-profile/', views.edit_profile, name='edit_profile'),
 ]

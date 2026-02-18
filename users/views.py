@@ -459,5 +459,25 @@ def deleted_profile_forever(request):
     user.delete()
     return Response({'success': True, 'message': 'Profil uğurla silindi!'})
 
+#Edit Profile
+@api_view(['POST'])
+def edit_profile(request):
+    current_user_id = int(request.data.get('user_id'))
+    new_username = request.data.get('username')
     
+    if not current_user_id or not new_username:
+        return Response({'success': False, 'error': 'İstifadəçi adı qeyd edin!'})
 
+    if NewsUsers.objects.filter(username=new_username).exclude(id=current_user_id).exists():
+        return Response({'success': False, 'error': 'İstifadəçi adı artıq mövcuddur!'})
+    try:
+        user = NewsUsers.objects.get(id=current_user_id)
+    except NewsUsers.DoesNotExist:
+        return Response({'success': False, 'error': 'İstifadəçi tapılmadı!'})
+
+    user.username = new_username
+    user.save(update_fields=['username'])
+    return Response({'success': True, 'message': 'Username uğurla dəyişdirildi!'})
+    
+    
+    
