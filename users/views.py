@@ -129,17 +129,15 @@ def recent_chats(request):
         sent_to = Message.objects.filter(sender=user).exclude(deleted_profile__contains=[user.id]).values('receiver__username').annotate(last_time=Max('timestamp'))
         received_from = Message.objects.filter(receiver=user).exclude(deleted_profile__contains=[user.id]).values('sender__username').annotate(last_time=Max('timestamp'))
         
-        chats = {}
-        for item in sent_to:
-            chats[item['receiver__username']] = item['last_time']
-        for item in received_from:
-            if item['sender__username'] in chats:
-                chats[item['sender__username']] = max(chats[item['sender__username']], item['last_time'])
-            else:
-                chats[item['sender__username']] = item['last_time']
+        all_chats = list(sent_to) + list(received_from)
 
+        chats = {}
+        for item in all_chats:
+            name = item.get('receiver__username') or item.get('sender__username')
+            chats[name] = max(chats.get(name, item['last_time']), item['last_time'])
+            
         sorted_users = sorted(chats.items(), key=lambda x: x[1], reverse=True)
-        users_ordered = [username for username, _ in sorted_users]
+        users_ordered = [{'username': username, 'last_time': last_time} for username, last_time in sorted_users]
         
         return Response({'users': users_ordered})
     except (NewsUsers.DoesNotExist, ValueError):
