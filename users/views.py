@@ -137,7 +137,7 @@ def recent_chats(request):
             chats[name] = max(chats.get(name, item['last_time']), item['last_time'])
             
         sorted_users = sorted(chats.items(), key=lambda x: x[1], reverse=True)
-        users_ordered = [{'username': username, 'last_time': last_time} for username, last_time in sorted_users]
+        users_ordered = [username for username, _ in sorted_users]
         
         return Response({'users': users_ordered})
     except (NewsUsers.DoesNotExist, ValueError):
