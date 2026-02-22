@@ -249,11 +249,15 @@ def user_status(request):
     try:
         user = NewsUsers.objects.get(username=username)
         
-        if user.is_online and user.last_seen:
-            now = timezone.now()
-            if now - user.last_seen > timedelta(minutes=5):
-                user.is_online = False
-                user.save(update_fields=["is_online"])
+        # İstifadəçi sorğu göndərirsə, onu aktiv kimi qeyd et
+        user.is_online = True
+        user.last_seen = timezone.now()
+        user.save(update_fields=["is_online", "last_seen"])
+        
+        # 5 dəqiqədən çoxdursa offline edən yoxlama
+        if user.last_seen and timezone.now() - user.last_seen > timedelta(minutes=5):
+            user.is_online = False
+            user.save(update_fields=["is_online"])
         
         return Response({
             'username': user.username,
