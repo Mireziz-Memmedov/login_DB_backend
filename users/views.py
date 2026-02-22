@@ -248,22 +248,23 @@ def user_status(request):
 
     try:
         user = NewsUsers.objects.get(username=username)
-        
-        # İstifadəçi sorğu göndərirsə, onu aktiv kimi qeyd et
-        user.is_online = True
+
+        # Son görülmə vaxtını yenilə
         user.last_seen = timezone.now()
-        user.save(update_fields=["is_online", "last_seen"])
-        
-        # 5 dəqiqədən çoxdursa offline edən yoxlama
-        if user.last_seen and timezone.now() - user.last_seen > timedelta(minutes=5):
-            user.is_online = False
-            user.save(update_fields=["is_online"])
-        
+        user.save(update_fields=["last_seen"])
+
+        # 5 dəqiqə ərzində aktivdirsə online, yoxsa offline
+        is_online = False
+        if user.last_seen and timezone.now() - user.last_seen <= timedelta(minutes=5):
+            is_online = True
+
+        # Cavabda qaytar
         return Response({
             'username': user.username,
-            'is_online': user.is_online,
+            'is_online': is_online,
             'last_seen': user.last_seen
         })
+
     except NewsUsers.DoesNotExist:
         return Response({'error': 'İstifadəçi tapılmadı'}, status=404)
 
