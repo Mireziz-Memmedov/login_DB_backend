@@ -273,7 +273,7 @@ def user_status(request):
 
     is_online = (
         user.last_seen and
-        timezone.now() - user.last_seen <= timedelta(minutes=1)
+        timezone.now() - user.last_seen <= timedelta(minutes=5)
     )
         
     return Response({
