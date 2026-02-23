@@ -273,7 +273,7 @@ def user_status(request):
 
     is_online = (
         user.last_seen and
-        timezone.now() - user.last_seen <= timedelta(minutes=5)
+        timezone.now() - user.last_seen <= timedelta(minutes=1)
     )
         
     return Response({
@@ -289,8 +289,7 @@ def logout(request):
     try:
         user = NewsUsers.objects.get(id=user_id)
         user.is_online = False
-        user.last_seen = timezone.now()
-        user.save(update_fields=["is_online", "last_seen"])
+        user.save(update_fields=["is_online"])
         return Response({'success': True})
     except NewsUsers.DoesNotExist:
         return Response({'success': False})
