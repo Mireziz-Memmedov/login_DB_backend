@@ -238,30 +238,49 @@ def get_messages(request):
         'has_more': total_visible > offset + limit
     })
 
+# Öz aktivliyini yeniləmək
+@api_view(['POST'])
+def update_activity(request):
 
-# User status
-@api_view(['GET'])
-def user_status(request):
-    username = request.GET.get('username')
+    username = request.data.get('username')
+
     if not username:
         return Response({'error': 'username tələb olunur'}, status=400)
 
-    try:
-        user = NewsUsers.objects.get(username=username)
-        
-        if user.is_online and user.last_seen:
-            now = timezone.now()
-            if now - user.last_seen > timedelta(minutes=5):
-                user.is_online = False
-                user.save(update_fields=["is_online"])
-        
-        return Response({
-            'username': user.username,
-            'is_online': user.is_online,
-            'last_seen': user.last_seen
-        })
-    except NewsUsers.DoesNotExist:
+    user = NewsUsers.objects.filter(username=username).first()
+    
+    if not user:
         return Response({'error': 'İstifadəçi tapılmadı'}, status=404)
+
+    user.last_seen = timezone.now()
+    user.save(update_fields=['last_seen'])
+
+    return Response({"status": "ok"})
+
+# Başqasının statusunu göstərmək
+@api_view(['GET'])
+def user_status(request):
+
+    username = request.GET.get('username')
+
+    if not username:
+        return Response({'error': 'username tələb olunur'}, status=400)
+
+    user = NewsUsers.objects.filter(username=username).first()
+
+    if not user:
+        return Response({'error': 'İstifadəçi tapılmadı'}, status=404)
+
+    is_online = (
+        user.last_seen and
+        timezone.now() - user.last_seen <= timedelta(minutes=5)
+    )
+        
+    return Response({
+        'username': user.username,
+        'is_online': is_online,
+        'last_seen': user.last_seen
+    })
 
 # Logout
 @api_view(['POST'])
