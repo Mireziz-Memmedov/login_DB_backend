@@ -138,8 +138,27 @@ def recent_chats(request):
             
         sorted_users = sorted(chats.items(), key=lambda x: x[1], reverse=True)
         users_ordered = [username for username, _ in sorted_users]
+
+        results = []
+        for username in users_ordered:
+            user_obj = NewsUsers.objects.get(username=username,)
+            
+            unread_count = Message.objects.filter(
+                sender=user_obj,
+                receiver=user,
+                is_read=False,
+                deleted_for_everyone=False
+            ).exclude(
+                deleted_for__contains=[current_user.id]
+            ).count()
+
+            results.append({
+                "username": username,
+                "unread_count": unread_count
+            })
         
-        return Response({'users': users_ordered})
+        return Response({'users': results})
+        
     except (NewsUsers.DoesNotExist, ValueError):
         return Response({'users': []})
 
