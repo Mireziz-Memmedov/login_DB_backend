@@ -117,30 +117,40 @@ def search_user(request):
     return Response({'users': list(users)})
 
 # Recent chats
-@api_view(['GET'])
 def recent_chats(request):
     current_user_id = request.GET.get('user_id')
     if not current_user_id:
         return Response({'users': []})
-    
+
     try:
         user = NewsUsers.objects.get(id=current_user_id)
 
-        sent_to = Message.objects.filter(sender=user).exclude(deleted_profile__contains=[user.id]).values('receiver__username').annotate(last_time=Max('timestamp'))
-        received_from = Message.objects.filter(receiver=user).exclude(deleted_profile__contains=[user.id]).values('sender__username').annotate(last_time=Max('timestamp'))
-        
-        all_chats = list(sent_to) + list(received_from)
+        # İstifadəçi göndərən və alan mesajları götür
+        all_msgs = Message.objects.filter(
+            Q(sender=user) | Q(receiver=user)
+        ).exclude(deleted_profile__contains=[user.id])
 
+        # Hər mesaj üçün digər istifadəçini və son zamanını tap
         chats = {}
-        for item in all_chats:
-            name = item.get('receiver__username') or item.get('sender__username')
-            chats[name] = max(chats.get(name, item['last_time']), item['last_time'])
-            
+        for msg in all_msgs:
+            if msg.sender == user:
+                other_user = msg.receiver.username
+            else:
+                other_user = msg.sender.username
+
+            last_time = msg.timestamp
+            if other_user in chats:
+                chats[other_user] = max(chats[other_user], last_time)
+            else:
+                chats[other_user] = last_time
+
+        # Son aktivliyə görə sırala
         sorted_users = sorted(chats.items(), key=lambda x: x[1], reverse=True)
-        users_ordered = [username for username, _ in sorted_users]
-        
+        users_ordered = [u for u, _ in sorted_users]
+
         return Response({'users': users_ordered})
-    except (NewsUsers.DoesNotExist, ValueError):
+
+    except NewsUsers.DoesNotExist:
         return Response({'users': []})
 
 # Send message
