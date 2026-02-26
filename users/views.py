@@ -122,64 +122,25 @@ def recent_chats(request):
     current_user_id = request.GET.get('user_id')
     if not current_user_id:
         return Response({'users': []})
-
+    
     try:
-        # current_user_id string-dirsə int-ə çevir
-        current_user_id = int(current_user_id)
-    except ValueError:
-        return Response({'users': [], 'error': 'user_id rəqəm olmalıdır'})
+        user = NewsUsers.objects.get(id=current_user_id)
 
-    try:
-        current_user = NewsUsers.objects.get(id=current_user_id)
-
-        # Göndərilən və alınan mesajları al
-        sent_to = Message.objects.filter(sender=current_user)\
-            .exclude(deleted_profile__contains=[current_user.id])\
-            .values('receiver__username')\
-            .annotate(last_time=Max('timestamp'))
-
-        received_from = Message.objects.filter(receiver=current_user)\
-            .exclude(deleted_profile__contains=[current_user.id])\
-            .values('sender__username')\
-            .annotate(last_time=Max('timestamp'))
-
+        sent_to = Message.objects.filter(sender=user).exclude(deleted_profile__contains=[user.id]).values('receiver__username').annotate(last_time=Max('timestamp'))
+        received_from = Message.objects.filter(receiver=user).exclude(deleted_profile__contains=[user.id]).values('sender__username').annotate(last_time=Max('timestamp'))
+        
         all_chats = list(sent_to) + list(received_from)
 
-        # Son mesaj vaxtına görə chatları birləşdir
         chats = {}
         for item in all_chats:
             name = item.get('receiver__username') or item.get('sender__username')
             chats[name] = max(chats.get(name, item['last_time']), item['last_time'])
-
-        # Sonra sort
+            
         sorted_users = sorted(chats.items(), key=lambda x: x[1], reverse=True)
         users_ordered = [username for username, _ in sorted_users]
-
-        results = []
-        for username in users_ordered:
-            # DB-də user yoxdursa pass et
-            user_obj = NewsUsers.objects.filter(username=username).first()
-            if not user_obj:
-                continue
-
-            # Unread mesaj sayını hesabla
-            unread_count = Message.objects.filter(
-                sender=user_obj,
-                receiver=current_user,
-                is_read=False,
-                deleted_for_everyone=False
-            ).exclude(
-                deleted_for__contains=[current_user.id]
-            ).count()
-
-            results.append({
-                "username": username,
-                "unread_count": unread_count
-            })
-
-        return Response({'users': results})
-
-    except NewsUsers.DoesNotExist:
+        
+        return Response({'users': users_ordered})
+    except (NewsUsers.DoesNotExist, ValueError):
         return Response({'users': []})
 
 # Send message
