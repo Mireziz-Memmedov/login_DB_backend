@@ -1,4 +1,5 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, parser_classes
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from .models import NewsUsers, Message
 from .serializers import NewsUsersSerializer, MessageSerializer
@@ -495,5 +496,9 @@ def edit_profile(request):
     user.save(update_fields=['username'])
     return Response({'success': True, 'message': 'Username uğurla dəyişdirildi!'})
     
-    
-    
+#profil sekli ucun endpoind
+# @api_view(['POST'])
+# @parser_classes([MultiPartParser, FormParser])
+# def update_profile_image(request):
+#     current_user_id = int(request.data.get('user_id'))
+#     profile_image = request.data.get('imgbox')
