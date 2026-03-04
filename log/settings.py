@@ -32,7 +32,6 @@ INSTALLED_APPS = [
     "rest_framework",
     # "rest_framework.authtoken",
     "users",
-    "corsheaders",
 ]
 
 MIDDLEWARE = [
@@ -155,16 +154,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-INSTALLED_APPS += ['cloudinary', 'cloudinary_storage']
-
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.getenv('CLOUD_NAME'),
-    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
-}
-
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'    
@@ -178,5 +167,3 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 # print(os.getenv("EMAIL_HOST_USER"))
 # print("EMAIL USER:", EMAIL_HOST_USER)
 # print("EMAIL PASS:", EMAIL_HOST_PASSWORD) 
-
-
