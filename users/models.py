@@ -8,6 +8,7 @@ class NewsUsers(models.Model):
     email = models.EmailField(max_length=254, unique=True, null=True, blank=False)
     is_online = models.BooleanField(default=False)
     last_seen = models.DateTimeField(null=True, blank=True, default=timezone.now)
+    profile_image = models.ImageField(upload_to='profile_images/', null=True, blank=True, default='profile_images/default.png')
     verify_code = models.CharField(max_length=6, null=False, blank=True)
     verify_code_created_at = models.DateTimeField(null=True, blank=True)
     failed_attempts = models.IntegerField(default=0)

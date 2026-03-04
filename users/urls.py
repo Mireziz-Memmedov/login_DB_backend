@@ -20,3 +20,4 @@ urlpatterns = [
     path('delete-profile-forever/', views.deleted_profile_forever, name='delete_profile_forever'),
     path('edit-profile/', views.edit_profile, name='edit_profile'),
 ]
+
