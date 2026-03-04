@@ -152,6 +152,7 @@ STATICFILES_STORAGE = None
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # MEDIA (sekil yuklemek ucun)
+STATIC_URL = '/static/'
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
