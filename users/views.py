@@ -497,8 +497,27 @@ def edit_profile(request):
     return Response({'success': True, 'message': 'Username uğurla dəyişdirildi!'})
     
 #profil sekli ucun endpoind
-# @api_view(['POST'])
-# @parser_classes([MultiPartParser, FormParser])
-# def update_profile_image(request):
-#     current_user_id = int(request.data.get('user_id'))
-#     profile_image = request.data.get('imgbox')
+@api_view(['POST'])
+@parser_classes([MultiPartParser, FormParser])
+def update_profile_image(request):
+    try:
+        current_user_id = int(request.data.get('user_id'))
+        profile_image = request.FILES.get('profile_image')  # FILES-dən alın
+
+        if not profile_image:
+            return Response({'success': False, 'error': 'Şəkil göndərilməyib!'})
+
+        user = NewsUsers.objects.get(id=current_user_id)
+        user.profile_image = profile_image
+        user.save(update_fields=['profile_image'])  
+
+        return Response({
+            'success': True,
+            'message': 'Şəkil uğurla dəyişdirildi!',
+            'profile_image_url': user.profile_image.url
+        })
+    
+    except NewsUsers.DoesNotExist:
+        return Response({'success': False, 'error': 'İstifadəçi tapılmadı'})
+    except ValueError:
+        return Response({'success': False, 'error': 'ID düzgün deyil'})
