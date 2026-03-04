@@ -15,7 +15,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "django-insecure-1swxn9+5_x&jmbyi%zl3vi@&@2uend_+0$st0^^d1^!h@!_k@v"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
@@ -32,7 +32,6 @@ INSTALLED_APPS = [
     "rest_framework",
     # "rest_framework.authtoken",
     "users",
-    "corsheaders",
 ]
 
 MIDDLEWARE = [
@@ -152,7 +151,6 @@ STATICFILES_STORAGE = None
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # MEDIA (sekil yuklemek ucun)
-STATIC_URL = '/static/'
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
