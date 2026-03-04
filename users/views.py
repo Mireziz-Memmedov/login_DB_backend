@@ -502,22 +502,25 @@ def edit_profile(request):
 def update_profile_image(request):
     try:
         current_user_id = int(request.data.get('user_id'))
-        profile_image = request.FILES.get('profile_image')  # FILES-dən alın
+        profile_image = request.FILES.get('profile_image')
 
         if not profile_image:
             return Response({'success': False, 'error': 'Şəkil göndərilməyib!'})
 
         user = NewsUsers.objects.get(id=current_user_id)
         user.profile_image = profile_image
-        user.save(update_fields=['profile_image'])  
+        user.save(update_fields=['profile_image'])
+
+        profile_url = user.profile_image.url if user.profile_image else ''
 
         return Response({
             'success': True,
             'message': 'Şəkil uğurla dəyişdirildi!',
-            'profile_image_url': user.profile_image.url
+            'profile_image_url': profile_url
         })
-    
+
     except NewsUsers.DoesNotExist:
         return Response({'success': False, 'error': 'İstifadəçi tapılmadı'})
-    except ValueError:
-        return Response({'success': False, 'error': 'ID düzgün deyil'})
+    except Exception as e:
+        # 500 xətasını dəqiq görmək üçün
+        return Response({'success': False, 'error': str(e)})
