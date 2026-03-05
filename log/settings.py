@@ -167,3 +167,13 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 # print(os.getenv("EMAIL_HOST_USER"))
 # print("EMAIL USER:", EMAIL_HOST_USER)
 # print("EMAIL PASS:", EMAIL_HOST_PASSWORD) 
+
+INSTALLED_APPS += ['cloudinary', 'cloudinary_storage']
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'douy6goys',
+    'API_KEY': '436258819146912',
+    'API_SECRET': '9Cfg8gZMnAujPq7N2w-tC-O9py8',
+}
