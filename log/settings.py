@@ -143,7 +143,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATICFILES_DIRS = []
-STATICFILES_STORAGE = None
+# STATICFILES_STORAGE = None
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -168,7 +168,7 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 # print("EMAIL USER:", EMAIL_HOST_USER)
 # print("EMAIL PASS:", EMAIL_HOST_PASSWORD) 
 
-INSTALLED_APPS += ['cloudinary', 'cloudinary_storage']
+INSTALLED_APPS += ["corsheaders", 'cloudinary', 'cloudinary_storage']
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
