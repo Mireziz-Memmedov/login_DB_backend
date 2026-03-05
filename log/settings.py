@@ -32,16 +32,13 @@ INSTALLED_APPS = [
     "rest_framework",
     # "rest_framework.authtoken",
     "users",
-    "corsheaders",
-    'cloudinary',
-    'cloudinary_storage',
 ]
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -146,7 +143,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATICFILES_DIRS = []
-# STATICFILES_STORAGE = None
+STATICFILES_STORAGE = None
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -154,8 +151,8 @@ STATICFILES_DIRS = []
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # MEDIA (sekil yuklemek ucun)
-# MEDIA_URL = "/media/"
-# MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -170,17 +167,3 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 # print(os.getenv("EMAIL_HOST_USER"))
 # print("EMAIL USER:", EMAIL_HOST_USER)
 # print("EMAIL PASS:", EMAIL_HOST_PASSWORD) 
-
-
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'douy6goys',
-    'API_KEY': '436258819146912',
-    'API_SECRET': '9Cfg8gZMnAujPq7N2w-tC-O9py8',
-}
-
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_HEADERS = ["*"]
-CORS_ALLOW_METHODS = ["*"]
