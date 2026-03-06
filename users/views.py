@@ -508,10 +508,10 @@ def update_profile_image(request):
             return Response({'success': False, 'error': 'Şəkil göndərilməyib!'})
 
         user = NewsUsers.objects.get(id=current_user_id)
-        user.profile_image = profile_image
+        user.profile_image = profile_image  # CloudinaryField avtomatik yükləyir
         user.save(update_fields=['profile_image'])
 
-        profile_url = user.profile_image.url if user.profile_image else ''
+        profile_url = user.profile_image.url  # Cloudinary URL
 
         return Response({
             'success': True,
@@ -522,5 +522,4 @@ def update_profile_image(request):
     except NewsUsers.DoesNotExist:
         return Response({'success': False, 'error': 'İstifadəçi tapılmadı'})
     except Exception as e:
-        # 500 xətasını dəqiq görmək üçün
         return Response({'success': False, 'error': str(e)})

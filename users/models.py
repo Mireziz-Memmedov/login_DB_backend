@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.hashers import make_password, check_password
 from django.utils import timezone
+from cloudinary.models import CloudinaryField
 
 class NewsUsers(models.Model):
     username = models.CharField(max_length=100, unique=True)
@@ -8,7 +9,7 @@ class NewsUsers(models.Model):
     email = models.EmailField(max_length=254, unique=True, null=True, blank=False)
     is_online = models.BooleanField(default=False)
     last_seen = models.DateTimeField(null=True, blank=True, default=timezone.now)
-    profile_image = models.ImageField(null=True, blank=True, default='https://res.cloudinary.com/douy6goys/image/upload/v1690000000/default.png')
+    profile_image = CloudinaryField('image', default='https://res.cloudinary.com/douy6goys/image/upload/v1690000000/default.png')
     verify_code = models.CharField(max_length=6, null=False, blank=True)
     verify_code_created_at = models.DateTimeField(null=True, blank=True)
     failed_attempts = models.IntegerField(default=0)
