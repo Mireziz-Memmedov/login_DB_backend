@@ -52,7 +52,7 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     "https://mireziz-memmedov.github.io",
-    "https://jubilant-guacamole-v6w46xjgx574h464-5500.app.github.dev/",
+    "https://jubilant-guacamole-v6w46xjgx574h464-5500.app.github.dev",
 ]
 
 # AUTH_USER_MODEL = 'users.NewsUsers'
