@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import cloudinary
 # from corsheaders.defaults import default_headers
 
 load_dotenv()
@@ -173,8 +174,9 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'douy6goys',
-    'API_KEY': '436258819146912',
-    'API_SECRET': '9Cfg8gZMnAujPq7N2w-tC-O9py8',
-}
+cloudinary.config(
+    cloud_name='douy6goys',
+    api_key='436258819146912',
+    api_secret='9Cfg8gZMnAujPq7N2w-tC-O9py',
+    secure=True
+)
