@@ -523,3 +523,26 @@ def update_profile_image(request):
         return Response({'success': False, 'error': 'İstifadəçi tapılmadı'})
     except Exception as e:
         return Response({'success': False, 'error': str(e)})
+
+#profil seklini goturmek ucun endpoind
+@api_view(['GET'])
+def get_profile_image(request):
+    try:
+        current_user_id = request.GET.get('user_id')
+
+        if not current_user_id:
+            return Response({'error': 'user_id tələb olunur'}, status=400)
+
+        user = NewsUsers.objects.get(id=current_user_id)
+
+        if user.profile_image:
+            return Response({
+                'profile_image_url': user.profile_image.url
+            })
+        else:
+            return Response({
+                'profile_image_url': None
+            })
+
+    except NewsUsers.DoesNotExist:
+        return Response({'error': 'İstifadəçi tapılmadı'}, status=404)
