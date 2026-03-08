@@ -542,7 +542,7 @@ def get_profile_image(request):
             })
         else:
             return Response({
-                'profile_image_url': "/Assets/profile.png"
+                'profile_image_url': 'https://res.cloudinary.com/douy6goys/image/upload/v1690000000/default_vcxic3.png'
             })
 
     except NewsUsers.DoesNotExist:
