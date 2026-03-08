@@ -9,7 +9,7 @@ class NewsUsers(models.Model):
     email = models.EmailField(max_length=254, unique=True, null=True, blank=False)
     is_online = models.BooleanField(default=False)
     last_seen = models.DateTimeField(null=True, blank=True, default=timezone.now)
-    profile_image = CloudinaryField('image', default='https://res.cloudinary.com/douy6goys/image/upload/v1690000000/default.png')
+    profile_image = CloudinaryField('image', default='https://res.cloudinary.com/douy6goys/image/upload/v1690000000/default_vcxic3.png')
     verify_code = models.CharField(max_length=6, null=False, blank=True)
     verify_code_created_at = models.DateTimeField(null=True, blank=True)
     failed_attempts = models.IntegerField(default=0)
