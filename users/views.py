@@ -280,7 +280,8 @@ def user_status(request):
     return Response({
         'username': user.username,
         'is_online': is_online,
-        'last_seen': user.last_seen
+        'last_seen': user.last_seen,
+        'profile_image_url': user.profile_image.url if user.profile_image else None
     })
 
 # Logout
