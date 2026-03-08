@@ -536,14 +536,11 @@ def get_profile_image(request):
 
         user = NewsUsers.objects.get(id=current_user_id)
 
-        if user.profile_image:
-            return Response({
-                'profile_image_url': user.profile_image.url
-            })
-        else:
-            return Response({
-                'profile_image_url': None
-            })
+        profile_url = user.profile_image.url if user.profile_image else "/Assets/profile.png"
+
+        return Response({
+            'profile_image_url': profile_url
+        })
 
     except NewsUsers.DoesNotExist:
         return Response({'error': 'İstifadəçi tapılmadı'}, status=404)
