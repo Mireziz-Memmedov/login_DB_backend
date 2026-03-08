@@ -281,7 +281,7 @@ def user_status(request):
         'username': user.username,
         'is_online': is_online,
         'last_seen': user.last_seen,
-        'profile_image_url': user.profile_image.url if user.profile_image else None
+        'profile_image_url': user.profile_image.url
     })
 
 # Logout
