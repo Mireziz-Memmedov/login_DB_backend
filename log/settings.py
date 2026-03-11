@@ -175,8 +175,8 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 cloudinary.config(
-    cloud_name='douy6goys',
-    api_key='436258819146912',
-    api_secret='9Cfg8gZMnAujPq7N2w-tC-O9py8',
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
     secure=True
 )
