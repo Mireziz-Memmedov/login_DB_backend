@@ -11,5 +11,13 @@
       "src": "/(.*)",
       "dest": "log/wsgi.py"
     }
-  ]
+  ],
+  "functions": {
+    "log/wsgi.py": { 
+      "memory": 1024,
+      "maxDuration": 10,
+      "maxRequestBodySize": "50mb"
+    }
+  }
 }
+
