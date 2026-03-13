@@ -21,5 +21,6 @@ urlpatterns = [
     path('edit-profile/', views.edit_profile, name='edit_profile'),
     path('update-profile-image/', views.update_profile_image, name='update_profile_image'),
     path('get-profile-image/', views.get_profile_image, name='get_profile_image'),
+    path('delete-profile-image/', views.delete_profile_image, name='delete_profile_image'),
 ]
 

@@ -547,3 +547,18 @@ def get_profile_image(request):
 
     except NewsUsers.DoesNotExist:
         return Response({'error': 'İstifadəçi tapılmadı'}, status=404)
+
+#Delete profile image
+@api_view(['POST'])
+def delete_profile_image(request):
+    try:
+        current_user_id = request.data.get('user_id')
+
+        user = NewsUsers.objects.get(id=current_user_id)
+        user.profile_image = None
+        user.save(update_fields=['profile_image'])
+
+        return Response({'success': True, 'message': 'Profil şəkli silindi!'})
+
+    except NewsUsers.DoesNotExist:
+        return Response({'success': False, 'error': 'İstifadəçi tapılmadı'})
