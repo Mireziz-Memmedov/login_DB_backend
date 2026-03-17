@@ -1,0 +1,45 @@
+{
+  "login": "Login",
+  "signup": "Sign up",
+  "logout": "Logout",
+  "save": "Save",
+  "delete": "Delete",
+  "edit": "Edit",
+  "search": "Search",
+  "send": "Send",
+  "continue": "Continue",
+
+  "username": "Username",
+  "password": "Password",
+  "new_password": "New password",
+  "email": "Email",
+  "message": "Type a message...",
+
+  "forgot_password": "Forgot password?",
+  "no_account": "Don't have an account?",
+  "have_account": "Already have an account?",
+
+  "enter_password": "Enter your password",
+  "enter_new_password": "Enter your new password",
+  "find_account": "Find your account",
+  "verify_code": "Enter the code sent to email",
+
+  "edit_profile": "Edit profile",
+  "delete_account": "Delete account",
+  "change_photo": "Add or change profile picture",
+
+  "confirm_delete": "Are you sure you want to delete the profile?",
+  "confirm_delete_forever": "Are you sure you want to permanently delete the profile?",
+  "yes": "yes",
+  "no": "no",
+
+  "welcome": "Welcome",
+  "no_chats": "No chats",
+  "online": "Online",
+  "last_seen": "Last seen",
+
+  "errors_fill_all": "Please fill in all fields!",
+  "error_wrong_password": "Wrong password!",
+  "error_user_not_found": "User not found!",
+  "server_error": "Server error, try again later!"
+}

@@ -1,0 +1,45 @@
+{
+  "login": "Giriş yap",
+  "signup": "Kayıt ol",
+  "logout": "Çıkış",
+  "save": "Kaydet",
+  "delete": "Sil",
+  "edit": "Düzenle",
+  "search": "Ara",
+  "send": "Gönder",
+  "continue": "Devam et",
+
+  "username": "Kullanıcı adı",
+  "password": "Şifre",
+  "new_password": "Yeni şifre",
+  "email": "Email",
+  "message": "Mesaj yaz...",
+
+  "forgot_password": "Şifrenizi mi unuttunuz?",
+  "no_account": "Hesabınız yok mu?",
+  "have_account": "Zaten hesabınız var mı?",
+
+  "enter_password": "Şifrenizi girin",
+  "enter_new_password": "Yeni şifrenizi girin",
+  "find_account": "Hesabınızı bulun",
+  "verify_code": "Email'e gönderilen kodu girin",
+
+  "edit_profile": "Profili düzenle",
+  "delete_account": "Hesabı sil",
+  "change_photo": "Profil fotoğrafı ekle veya değiştir",
+
+  "confirm_delete": "Profili silmek istediğinize emin misiniz?",
+  "confirm_delete_forever": "Profili kalıcı olarak silmek istediğinize emin misiniz?",
+  "yes": "evet",
+  "no": "hayır",
+
+  "welcome": "Hoş geldiniz",
+  "no_chats": "Hiç sohbet yok",
+  "online": "Çevrimiçi",
+  "last_seen": "Son görülme",
+
+  "errors_fill_all": "Lütfen tüm alanları doldurun!",
+  "error_wrong_password": "Şifre yanlış!",
+  "error_user_not_found": "Kullanıcı bulunamadı!",
+  "server_error": "Sunucu hatası, sonra tekrar deneyin!"
+}

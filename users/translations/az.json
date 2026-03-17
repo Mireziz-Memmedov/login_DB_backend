@@ -1,0 +1,45 @@
+{
+  "login": "Daxil ol",
+  "signup": "Qeydiyyat",
+  "logout": "Çıxış",
+  "save": "Yadda saxla",
+  "delete": "Sil",
+  "edit": "Redaktə et",
+  "search": "Axtar",
+  "send": "Göndər",
+  "continue": "Davam et",
+
+  "username": "İstifadəçi adı",
+  "password": "Şifrə",
+  "new_password": "Yeni şifrə",
+  "email": "Email",
+  "message": "Mesaj yaz...",
+
+  "forgot_password": "Şifrəni unutmusunuz?",
+  "no_account": "Hesabınız yoxdur?",
+  "have_account": "Artıq hesabınız var?",
+
+  "enter_password": "Şifrənizi daxil edin",
+  "enter_new_password": "Yeni şifrənizi daxil edin",
+  "find_account": "Hesabınızı tapın",
+  "verify_code": "Email-ə göndərilən kodu daxil edin",
+
+  "edit_profile": "Profilini redaktə et",
+  "delete_account": "Hesabını sil",
+  "change_photo": "Profil şəklini əlavə et və ya dəyiş",
+
+  "confirm_delete": "Profili silmək istədiyinizə əminsiniz?",
+  "confirm_delete_forever": "Profili daimi olaraq silmək istədiyinizə əminsiniz?",
+  "yes": "bəli",
+  "no": "xeyr",
+
+  "welcome": "Xoş gəlmisiniz",
+  "no_chats": "Heç bir söhbət yoxdur",
+  "online": "Onlayn",
+  "last_seen": "Son görülmə",
+
+  "errors_fill_all": "Zəhmət olmasa bütün xanaları doldurun!",
+  "error_wrong_password": "Şifrə yanlışdır!",
+  "error_user_not_found": "İstifadəçi tapılmadı!",
+  "server_error": "Server xətası, sonra yenidən cəhd edin!"
+}
