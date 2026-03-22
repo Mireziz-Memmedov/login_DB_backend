@@ -43,3 +43,13 @@ class Message(models.Model):
 
     def __str__(self):
         return f"{self.sender} -> {self.receiver}: {self.text[:20]}"
+    
+class Translations(models.Model):
+    key = models.CharField(max_length=100)
+    az = models.CharField(max_length=255)
+    tr = models.CharField(max_length=255)
+    en = models.CharField(max_length=255)
+    ru = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.key
