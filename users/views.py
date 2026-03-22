@@ -13,6 +13,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+import json, os
 
 # Signup
 @api_view(['POST'])
@@ -562,3 +563,16 @@ def delete_profile_image(request):
 
     except NewsUsers.DoesNotExist:
         return Response({'success': False, 'error': 'İstifadəçi tapılmadı'})
+
+#Translation üçün endpoind
+# @api_view(['POST'])
+# def translations(request):
+#     lang = request.data.get('lang', 'az')
+#     key = request.data.get('key')
+
+#     if not lang:
+#         return Response({'success': False, 'error': 'Lang parametri göndərilməyib'})
+#     if not key:
+#         return Response({'success': False, 'error': 'Key parametri göndərilməyib'})
+
+    
