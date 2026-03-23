@@ -565,14 +565,28 @@ def delete_profile_image(request):
         return Response({'success': False, 'error': 'İstifadəçi tapılmadı'})
 
 #Translation üçün endpoind
-# @api_view(['POST'])
-# def translations(request):
-#     lang = request.data.get('lang', 'az')
-#     key = request.data.get('key')
+@api_view(['POST'])
+def translations(request):
+    lang = request.data.get('lang', 'az')
+    key = request.data.get('key')
 
-#     if not lang:
-#         return Response({'success': False, 'error': 'Lang parametri göndərilməyib'})
-#     if not key:
-#         return Response({'success': False, 'error': 'Key parametri göndərilməyib'})
+    if not lang:
+        return Response({'success': False, 'error': 'Lang parametri göndərilməyib'})
+    if not key:
+        return Response({'success': False, 'error': 'Key parametri göndərilməyib'})
 
-    
+    file_path = os.path.join(BASE_DIR, 'users', 'translations', f'{lang.lower()}.json')
+
+    try:
+        with open(file_path, encoding='utf-8') as f:
+            translations = json.load(f)
+    except FileNotFoundError:
+        return Response({'success': False, 'error': 'Dil faylı tapılmadı'})
+
+    value = translations.get(key, key)
+
+    return Response({
+        'success': True,
+        'value': value
+    })
+
