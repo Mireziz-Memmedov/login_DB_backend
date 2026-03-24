@@ -14,6 +14,7 @@ from django.conf import settings
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 import json, os
+BASE_DIR = settings.BASE_DIR
 
 # Signup
 @api_view(['POST'])
@@ -582,6 +583,8 @@ def translations(request):
             translations = json.load(f)
     except FileNotFoundError:
         return Response({'success': False, 'error': 'Dil faylı tapılmadı'})
+    except json.JSONDecodeError:
+        return Response({'success': False, 'error': 'Dil faylı düzgün JSON deyil'})
 
     value = translations.get(key, key)
 
