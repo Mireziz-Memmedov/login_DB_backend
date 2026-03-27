@@ -11,6 +11,7 @@
 
   "signup_chat_text": "Kayıt ol ve arkadaşlarınla sohbet etmeye başla",
   "enter_username_password": "Lütfen kullanıcı adınızı ve şifrenizi girin",
+  "login_success_redirect": "Giriş başarılı! Yönlendiriliyor...",
 
   "username": "Kullanıcı adı",
   "password": "Şifre",
