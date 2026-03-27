@@ -5,9 +5,15 @@
   "save": "Yadda saxla",
   "delete": "Sil",
   "edit": "Redaktə et",
-  "search": "Axtar",
+  "search": "Axtar...",
   "send": "Göndər",
   "continue": "Davam et",
+  "profile": "Profil",
+  "username_or_email": "İstifadəçi adı və ya email",
+  "code": "Kodun təsdiqi",
+  "reset_password": "Şifrəni sıfırla",
+  "settings": "Ayarlar",
+  "delete_profile": "Profili sil",
 
   "signup_chat_text": "Qeydiyyatdan keç və dostlarınla söhbət etməyə başla",
   "enter_username_password": "Zəhmət olmasa istifadəçi adını və şifrəni daxil edin",
@@ -36,6 +42,8 @@
   "confirm_delete_forever": "Profili daimi olaraq silmək istədiyinizə əminsiniz?",
   "yes": "bəli",
   "no": "xeyr",
+
+  "chat": "Söhbət",
 
   "welcome": "Xoş gəlmisiniz",
   "no_chats": "Heç bir söhbət yoxdur",

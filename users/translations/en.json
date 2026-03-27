@@ -5,9 +5,15 @@
   "save": "Save",
   "delete": "Delete",
   "edit": "Edit",
-  "search": "Search",
+  "search": "Search...",
   "send": "Send",
   "continue": "Continue",
+  "profile": "Profile",
+  "username_or_email": "Username or email",
+  "code": "Verify code",
+  "reset_password": "Reset password",
+  "settings": "Settings",
+  "delete_profile": "Delete profile",
 
   "signup_chat_text": "Sign up and start chatting with your friends",
   "enter_username_password": "Please enter your username and password",
@@ -36,6 +42,8 @@
   "confirm_delete_forever": "Are you sure you want to permanently delete the profile?",
   "yes": "yes",
   "no": "no",
+
+  "chat": "Chat",
 
   "welcome": "Welcome",
   "no_chats": "No chats",
