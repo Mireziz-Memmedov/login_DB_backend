@@ -12,6 +12,7 @@
   "signup_chat_text": "Qeydiyyatdan keç və dostlarınla söhbət etməyə başla",
   "enter_username_password": "Zəhmət olmasa istifadəçi adını və şifrəni daxil edin",
   "login_success_redirect": "Giriş uğurlu! Yönləndirilir...",
+  "account_not_verified": "Hesab təsdiqlənməyib! Zəhmət olmasa email-dən təsdiq kodunu daxil edin.",
 
   "username": "İstifadəçi adı",
   "password": "Şifrə",

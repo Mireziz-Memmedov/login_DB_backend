@@ -12,6 +12,8 @@
   "signup_chat_text": "Kayıt ol ve arkadaşlarınla sohbet etmeye başla",
   "enter_username_password": "Lütfen kullanıcı adınızı ve şifrenizi girin",
   "login_success_redirect": "Giriş başarılı! Yönlendiriliyor...",
+  "account_not_verified": "Hesap doğrulanmadı! Lütfen e-postanıza gönderilen doğrulama kodunu girin.",
+
 
   "username": "Kullanıcı adı",
   "password": "Şifre",
